@@ -10,7 +10,21 @@ A simple app using eth-lightwallet and vuejs to generate ethereum wallet.
 
     npm run dev or yarn run dev
 
-    Have fun with wallet app.
+Have fun with vue-ethereum wallet app.
+
+# Router
+
+1. /
+
+create wallet with user password
+
+2. /wallet-seed
+
+create wallet with user password and user seed(12 words)
+
+3. /import-keystore
+
+import wallet from keystore.json
 
 # Test
 
