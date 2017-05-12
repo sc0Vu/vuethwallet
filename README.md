@@ -28,4 +28,14 @@ import wallet from keystore.json
 
 # Test
 
+1. unit
+
+    npm run unit
+
+2. e2e
+
+    npm run e2e
+
+3. all
+
     npm run test or yarn run test
