@@ -12,15 +12,24 @@ export default new Router({
     {
       path: '/',
       name: 'wallet',
-      component: Wallet
+      component: Wallet,
+      meta: {
+        title: 'Wallet'
+      }
     }, {
       path: '/wallet-seed',
       name: 'wallet-seed',
-      component: WalletSeed
+      component: WalletSeed,
+      meta: {
+        title: 'Wallet - Seed'
+      }
     }, {
       path: '/import-keystore',
       name: 'importkeystore',
-      component: ImportKeystore
+      component: ImportKeystore,
+      meta: {
+        title: 'Import Wallet'
+      }
     }
   ]
 })
