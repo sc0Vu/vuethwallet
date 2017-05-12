@@ -1,9 +1,13 @@
 <template>
   <div id="app" class="container">
-    <div class="button-group">
-      <router-link to="/">錢包</router-link>
-      <router-link to="/wallet-seed">種子錢包</router-link>
-      <router-link to="/import-keystore">匯入錢包</router-link>
+    <div class="columns">
+      <div class="column">
+        <div>
+          <router-link class="button is-primary" to="/">Wallet</router-link>
+          <router-link class="button is-info" to="/wallet-seed">Seed Wallet</router-link>
+          <router-link class="button is-success" to="/import-keystore">Import Wallet</router-link>
+        </div>
+      </div>
     </div>
     <transition appear>
       <router-view></router-view>

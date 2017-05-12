@@ -51,7 +51,7 @@
 
     <div class="panel-block has-text-centered">
       <div class="container">
-        <button class="button is-primary" v-on:click.prevent.self="generate">generate</button>
+        <button class="button is-primary" v-on:click.prevent.self="generate">Generate Wallet</button>
       </div>
     </div>
 
