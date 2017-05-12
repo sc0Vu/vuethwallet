@@ -39,3 +39,7 @@ import wallet from keystore.json
 3. all
 
     npm run test or yarn run test
+
+# Demo
+
+![live-demo](https://cloud.githubusercontent.com/assets/10494397/25985929/ce4e6aac-371f-11e7-944b-e10940a0afad.gif)
