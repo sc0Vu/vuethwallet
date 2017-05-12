@@ -6,6 +6,16 @@ import router from './router'
 
 Vue.config.productionTip = false
 
+// rewrite document title
+const APP_NAME = '*** Vue Ethwallet ***'
+
+router.afterEach(function (to, from) {
+  var title = to.meta.title || 'Wallet'
+
+  title += ' | ' + APP_NAME
+  document.title = title
+})
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
