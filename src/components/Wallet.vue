@@ -79,9 +79,6 @@ export default {
     }
   },
   methods: {
-    clearMsg () {
-      this.msg = ''
-    },
     switchType () {
       if (this.type === 'text') {
         this.type = 'password'
