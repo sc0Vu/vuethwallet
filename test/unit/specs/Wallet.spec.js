@@ -2,6 +2,9 @@ import Vue from 'vue'
 import Wallet from '@/components/Wallet'
 
 describe('Wallet.vue', () => {
+  var weakPassword = 'aaaaaaaa'
+  var strongPassword = 'adskvnjsklfbnskglkljdgnbmvmv'
+
   it('should have wallet name', () => {
     expect(Wallet.name)
       .to.equal('wallet')
@@ -53,7 +56,7 @@ describe('Wallet.vue', () => {
     const Constructor = Vue.extend(Wallet)
     const vm = new Constructor({}).$mount()
 
-    vm.password = 'aaaaaaaa'
+    vm.password = weakPassword
     expect(vm.$el.querySelector('#pass').type)
       .to.equal('text')
     expect(vm.$el.querySelector('.button.is-info.password-button').textContent.trim())
@@ -61,7 +64,8 @@ describe('Wallet.vue', () => {
     vm.switchType()
 
     Vue.nextTick(() => {
-      vm.password = 'aaaaaaaa'
+      expect(vm.password)
+        .to.equal(weakPassword)
       expect(vm.$el.querySelector('#pass').type)
         .to.equal('password')
       expect(vm.$el.querySelector('.button.is-info.password-button').textContent.trim())
@@ -69,11 +73,11 @@ describe('Wallet.vue', () => {
     })
   })
 
-  it('should change password input class and password help text', () => {
+  it('should check password and change password input class and password help text', () => {
     const Constructor = Vue.extend(Wallet)
     const vm = new Constructor({}).$mount()
 
-    vm.password = 'aaaaaaaa'
+    vm.password = weakPassword
     vm.checkPassword()
 
     Vue.nextTick(() => {
@@ -81,7 +85,10 @@ describe('Wallet.vue', () => {
         .to.equal(true)
       expect(vm.$el.querySelector('.help.is-danger.password-help').textContent.trim())
         .to.equal('Weak Password')
-      vm.password = 'adskvnjsklfbnskglkljdgnbmvmv'
+      expect(vm.score)
+        .to.equal(0)
+
+      vm.password = strongPassword
       vm.checkPassword()
 
       Vue.nextTick(() => {
@@ -89,24 +96,9 @@ describe('Wallet.vue', () => {
           .to.equal(true)
         expect(vm.$el.querySelector('.help.is-success.password-help').textContent.trim())
         .to.equal('Strong Password')
+        expect(vm.score > 0)
+          .to.equal(true)
       })
-    })
-  })
-
-  it('should check password', () => {
-    const Constructor = Vue.extend(Wallet)
-    const vm = new Constructor({}).$mount()
-
-    vm.password = 'aaasdcahhnhghnmfmjf'
-    expect(vm.score)
-      .to.equal(0)
-
-    vm.checkPassword()
-
-    Vue.nextTick(() => {
-      vm.password = 'aaaaaaaa'
-      expect(vm.score > 0)
-        .to.equal(true)
     })
   })
 
@@ -114,7 +106,7 @@ describe('Wallet.vue', () => {
     const Constructor = Vue.extend(Wallet)
     const vm = new Constructor({}).$mount()
 
-    vm.password = 'aaasdcahhnhghnmfmjf'
+    vm.password = strongPassword
     expect(vm.newAddress(vm.password))
       .to.equal(false)
   })
@@ -138,8 +130,9 @@ describe('Wallet.vue', () => {
     const Constructor = Vue.extend(Wallet)
     const vm = new Constructor({}).$mount()
 
-    vm.password = 'aaaaaaaa'
+    vm.password = weakPassword
     vm.generate()
+
     Vue.nextTick(() => {
       expect(vm.error)
         .to.equal(true)
@@ -152,7 +145,7 @@ describe('Wallet.vue', () => {
     const Constructor = Vue.extend(Wallet)
     const vm = new Constructor({}).$mount()
 
-    vm.password = 'asdfvaasdfvaabgbdfaa'
+    vm.password = strongPassword
     vm.generate()
     Vue.nextTick(() => {
       var randomSeed = vm.randomSeed.split(' ')
