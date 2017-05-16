@@ -19,13 +19,13 @@
             <div class="control">
               <input id="pass" class="input" type="text" v-model="password" placeholder="Password" v-on:change.prevent.self="checkPassword" v-if="type === 'text'" v-bind:class="{'is-danger': ((score < 3 && password) || error), 'is-success': (score >= 3 && password)}">
               <input id="pass" class="input" type="password" v-model="password" placeholder="Password" v-on:change.prevent.self="checkPassword" v-if="type === 'password'" v-bind:class="{'is-danger': ((score < 3 && password) || error), 'is-success': (score >= 3 && password)}">
-              <p class="help is-danger" v-if="score < 3 && password">Weak Password</p>
-              <p class="help is-success" v-if="score >= 3 && password">Strong Password</p>
+              <p class="help is-danger password-help" v-if="score < 3 && password">Weak Password</p>
+              <p class="help is-success password-help" v-if="score >= 3 && password">Strong Password</p>
             </div>
           </div>
 
           <div class="column is-one-quarter">
-            <button class="button is-info" v-on:click.prevent.self="switchType">{{ buttonText }}</button>
+            <button class="button is-info password-button" v-on:click.prevent.self="switchType">{{ buttonText }}</button>
           </div>
         </div>
       </div>
@@ -68,7 +68,7 @@ export default {
       error: false,
       password: '',
       type: 'text',
-      buttonText: 'hidden',
+      buttonText: 'Hide',
       score: 0,
       keystore: {},
       address: '',
@@ -94,6 +94,9 @@ export default {
       this.score = result.score
     },
     newAddress (password) {
+      if (typeof this.keystore.getAddresses !== 'functioon') {
+        return false
+      }
       this.keystore.keyFromPassword(password, function (err, pwDerivedKey) {
         if (err) {
           this.error = true

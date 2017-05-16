@@ -26,7 +26,7 @@ describe('Message.vue', () => {
     expect(vm.$el.textContent.trim())
       .to.equal('Error')
   })
-  
+
   it('should render success contents', () => {
     const Constructor = Vue.extend(Message)
     const vm = new Constructor({propsData: {
