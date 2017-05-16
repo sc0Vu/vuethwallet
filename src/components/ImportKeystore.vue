@@ -19,13 +19,13 @@
             <div class="control">
               <input id="pass" class="input" type="text" v-model="password" placeholder="Password" v-on:change.prevent.self="checkPassword" v-if="type === 'text'" v-bind:class="{'is-danger': ((score < 3 && password) || error), 'is-success': (score >= 3 && password)}">
               <input id="pass" class="input" type="password" v-model="password" placeholder="Password" v-on:change.prevent.self="checkPassword" v-if="type === 'password'" v-bind:class="{'is-danger': ((score < 3 && password) || error), 'is-success': (score >= 3 && password)}">
-              <p class="help is-danger" v-if="score < 3 && password">Weak Password</p>
-              <p class="help is-success" v-if="score >= 3 && password">Strong Password</p>
+              <p class="help is-danger password-help" v-if="score < 3 && password">Weak Password</p>
+              <p class="help is-success password-help" v-if="score >= 3 && password">Strong Password</p>
             </div>
           </div>
 
           <div class="column is-one-quarter">
-            <button class="button is-info" v-on:click.prevent.self="switchType">{{ buttonText }}</button>
+            <button class="button is-info password-button" v-on:click.prevent.self="switchType">{{ buttonText }}</button>
           </div>
         </div>
       </div>
@@ -55,8 +55,8 @@
           <div class="column is-third-quarter">
             <div class="control">
               <input id="file-seed" class="input" type="file" v-on:change="readKeystoreJsonFile" placeholder="Keystore JSON" v-bind:class="{'is-danger': (!isKeystoreJsonValid && keystoreJson), 'is-success': isKeystoreJsonValid}">
-              <p class="help is-danger" v-if="!isKeystoreJsonValid && keystoreJson">Keystore JSON isn't valid</p>
-              <p class="help is-success" v-if="isKeystoreJsonValid">Keystore JSON is valid</p>
+              <p class="help is-danger file-help" v-if="!isKeystoreJsonValid && keystoreJson">Keystore JSON isn't valid</p>
+              <p class="help is-success file-help" v-if="isKeystoreJsonValid">Keystore JSON is valid</p>
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@
 
     <div class="panel-block has-text-centered">
       <div class="container">
-        <button class="button is-primary" v-on:click.prevent.self="importWallet">Import Wallet</button>
+        <button class="button is-primary file-button" v-on:click.prevent.self="importWallet">Import Wallet</button>
       </div>
     </div>
 
@@ -94,7 +94,7 @@ export default {
       error: false,
       password: '',
       type: 'text',
-      buttonText: 'hidden',
+      buttonText: 'Hide',
       score: 0,
       keystore: {},
       address: '',
