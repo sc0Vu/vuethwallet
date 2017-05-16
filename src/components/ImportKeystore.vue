@@ -130,6 +130,9 @@ export default {
       this.score = result.score
     },
     newAddress (password) {
+      if (typeof this.keystore.getAddresses !== 'function') {
+        return false
+      }
       this.keystore.keyFromPassword(password, function (err, pwDerivedKey) {
         if (err) {
           this.error = true
