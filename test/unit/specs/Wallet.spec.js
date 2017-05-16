@@ -148,7 +148,7 @@ describe('Wallet.vue', () => {
     })
   })
 
-  it('should render create wallet success contents', () => {
+  it('should create valid random seed', () => {
     const Constructor = Vue.extend(Wallet)
     const vm = new Constructor({}).$mount()
 
