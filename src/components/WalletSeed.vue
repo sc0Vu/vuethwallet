@@ -19,13 +19,13 @@
             <div class="control">
               <input id="pass" class="input" type="text" v-model="password" placeholder="Password" v-on:change.prevent.self="checkPassword" v-if="type === 'text'" v-bind:class="{'is-danger': ((score < 3 && password) || error), 'is-success': (score >= 3 && password)}">
               <input id="pass" class="input" type="password" v-model="password" placeholder="Password" v-on:change.prevent.self="checkPassword" v-if="type === 'password'" v-bind:class="{'is-danger': ((score < 3 && password) || error), 'is-success': (score >= 3 && password)}">
-              <p class="help is-danger" v-if="score < 3 && password">Weak Password</p>
-              <p class="help is-success" v-if="score >= 3 && password">Strong Password</p>
+              <p class="help is-danger password-help" v-if="score < 3 && password">Weak Password</p>
+              <p class="help is-success password-help" v-if="score >= 3 && password">Strong Password</p>
             </div>
           </div>
 
           <div class="column is-one-quarter">
-            <button class="button is-info" v-on:click.prevent.self="switchType">{{ buttonText }}</button>
+            <button class="button is-info password-button" v-on:click.prevent.self="switchType">{{ buttonText }}</button>
           </div>
         </div>
       </div>
@@ -41,8 +41,8 @@
           <div class="column is-third-quarter">
             <div class="control">
               <input id="seed" class="input" type="text" v-model="randomSeed" placeholder="Random Seed" v-bind:class="{'is-danger': (!isSeedValid && randomSeed), 'is-success': (isSeedValid && randomSeed)}">
-              <p class="help is-danger" v-if="!isSeedValid && randomSeed">Random Seed isn't valid</p>
-              <p class="help is-success" v-if="isSeedValid && randomSeed">Random Seed is valid</p>
+              <p class="help is-danger seed-help" v-if="!isSeedValid && randomSeed">Random Seed isn't valid</p>
+              <p class="help is-success seed-help" v-if="isSeedValid && randomSeed">Random Seed is valid</p>
             </div>
           </div>
         </div>
@@ -86,7 +86,7 @@ export default {
       error: false,
       password: '',
       type: 'text',
-      buttonText: 'hidden',
+      buttonText: 'Hide',
       score: 0,
       keystore: {},
       address: '',
