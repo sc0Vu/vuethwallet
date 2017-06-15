@@ -26,6 +26,10 @@ create wallet with user password and user seed(12 words)
 
 import wallet from keystore.json
 
+4. /contract-transaction
+
+make contract transaction
+
 # Test
 
 1. unit
@@ -35,7 +39,7 @@ import wallet from keystore.json
 2. e2e
     
     to be continued
-    
+
     npm run e2e
 
 3. all
