@@ -33,7 +33,9 @@ import wallet from keystore.json
     npm run unit
 
 2. e2e
-
+    
+    to be continued
+    
     npm run e2e
 
 3. all
