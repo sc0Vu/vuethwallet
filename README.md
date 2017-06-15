@@ -44,7 +44,7 @@ import wallet from keystore.json
 
 # Demo
 
-![live-demo](https://cloud.githubusercontent.com/assets/10494397/25985929/ce4e6aac-371f-11e7-944b-e10940a0afad.gif)
+![live-demo](https://user-images.githubusercontent.com/10494397/27172628-80f4fba2-51e8-11e7-9368-e89d56e7f422.gif)
 ## Support on Beerpay
 Hey dude! Help me out for a couple of :beers:!
 
