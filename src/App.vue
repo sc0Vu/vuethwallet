@@ -6,6 +6,7 @@
           <router-link class="button is-primary" to="/">Wallet</router-link>
           <router-link class="button is-info" to="/wallet-seed">Seed Wallet</router-link>
           <router-link class="button is-success" to="/import-keystore">Import Wallet</router-link>
+          <router-link class="button is-warning" to="/contract-transaction">Contract Transaction</router-link>
         </div>
       </div>
     </div>

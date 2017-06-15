@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Wallet from '@/components/Wallet'
 import WalletSeed from '@/components/WalletSeed'
 import ImportKeystore from '@/components/ImportKeystore'
+import ContractTransaction from '@/components/ContractTransaction'
 
 Vue.use(Router)
 
@@ -29,6 +30,13 @@ export default new Router({
       component: ImportKeystore,
       meta: {
         title: 'Import Wallet'
+      }
+    }, {
+      path: '/contract-transaction',
+      name: 'contractTransaction',
+      component: ContractTransaction,
+      meta: {
+        title: 'Contract Transaction'
       }
     }
   ]
