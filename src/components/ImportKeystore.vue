@@ -71,8 +71,14 @@
 
     <div class="panel-block has-text-centered" v-if="address">
       <div class="container">
-        <p>Address</p>
-        <p>{{ address }}</p>
+        <div class="columns">
+          <div class="column is-one-quarter">
+            <p>Address</p>
+          </div>
+          <div class="column is-three-quarter">
+            <p>{{ address }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -37,16 +37,40 @@
       </div>
     </div>
 
-    <div class="panel-block has-text-centered" v-if="address">
+    <div class="panel-block" v-if="address">
       <div class="container">
-        <p>Random Seed</p>
-        <p>{{ randomSeed }}</p>
-        <p>Address</p>
-        <p>{{ address }}</p>
-        <p>Privatekey</p>
-        <p>{{ privateKey }}</p>
-        <p>Keystore JSON <a download="keystore.json" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a></p>
-        <!-- <p>{{ keystoreJson }}</p> -->
+        <div class="columns">
+          <div class="column is-one-quarter">
+            <p>Random Seed</p>
+          </div>
+          <div class="column is-three-quarter">
+            <p>{{ randomSeed }}</p>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-one-quarter">
+            <p>Address</p>
+          </div>
+          <div class="column is-three-quarter">
+            <p>{{ address }}</p>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-one-quarter">
+            <p>Privatekey</p>
+          </div>
+          <div class="column is-three-quarter">
+            <p>{{ privateKey }}</p>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-one-quarter">
+            <p>Keystore JSON</p>
+          </div>
+          <div class="column is-three-quarter">
+            <a class="button is-danger" download="keystore.json" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>

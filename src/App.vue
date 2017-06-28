@@ -10,6 +10,14 @@
         </div>
       </div>
     </div>
+    <div class="columns">
+      <div class="column">
+        <div class="notification is-info">
+          <p>Due to the same random seeds will create the same wallet address.</p>
+          <p>Remember to keep random seed save.</p>
+        </div>
+      </div>
+    </div>
     <transition appear>
       <router-view></router-view>
     </transition>
