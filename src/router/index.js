@@ -4,11 +4,13 @@ import Wallet from '@/components/Wallet'
 import WalletSeed from '@/components/WalletSeed'
 import ImportKeystore from '@/components/ImportKeystore'
 import ContractTransaction from '@/components/ContractTransaction'
+import ValueTransaction from '@/components/ValueTransaction'
 
 Vue.use(Router)
 
 export default new Router({
   mode: 'history',
+  linkActiveClass: 'active',
   routes: [
     {
       path: '/',
@@ -37,6 +39,13 @@ export default new Router({
       component: ContractTransaction,
       meta: {
         title: 'Contract Transaction'
+      }
+    }, {
+      path: '/value-transaction',
+      name: 'valueTransaction',
+      component: ValueTransaction,
+      meta: {
+        title: 'Value Transaction'
       }
     }
   ]

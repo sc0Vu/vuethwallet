@@ -1,6 +1,6 @@
 <template>
   <div class="panel">
-    <h2 class="panel-heading">Contract Transaction</h2>
+    <h2 class="panel-heading">Value Transaction</h2>
 
     <div class="panel-block" v-if="msg">
       <div class="container">
@@ -99,66 +99,14 @@
         <div class="container">
           <div class="columns">
             <div class="column is-one-quarter">
-              <label class="label" for="contractAddress">Contract Address</label>
+              <label class="label" for="contractAddress">To Address</label>
             </div>
           
             <div class="column is-third-quarter">
               <div class="control">
-                <input id="contractAddress" class="input" type="text" v-model="contractAddress" placeholder="Contract Address" v-bind:class="{'is-danger': (!isContractAddressValid && contractAddress), 'is-success': isContractAddressValid}">
-                <p class="help is-danger" v-if="!isContractAddressValid && contractAddress">Contract Address isn't valid</p>
-                <p class="help is-success" v-if="contractAddress">Contract Address is valid</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel-block">
-        <div class="container">
-          <div class="columns">
-            <div class="column is-one-quarter">
-              <label class="label" for="contractABI">Contract ABI</label>
-            </div>
-          
-            <div class="column is-third-quarter">
-              <div class="control">
-                <input id="contractABI" class="input" type="text" v-model="abi" placeholder="Contract ABI" v-bind:class="{'is-danger': (!isAbiValid && abi), 'is-success': isAbiValid}">
-                <p class="help is-danger" v-if="!isAbiValid && abi">Contract Abi isn't valid</p>
-                <p class="help is-success" v-if="isAbiValid">Contract ABI is valid</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel-block">
-        <div class="container">
-          <div class="columns">
-            <div class="column is-one-quarter">
-              <label class="label" for="name">Function Name</label>
-            </div>
-          
-            <div class="column is-third-quarter">
-              <div class="control">
-                <input id="name" class="input" type="text" v-model="name" placeholder="Function Name" v-bind:class="{'is-success': name}">
-                <p class="help is-success" v-if="name">Function Name is valid</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel-block">
-        <div class="container">
-          <div class="columns">
-            <div class="column is-one-quarter">
-              <label class="label" for="args">Function Args</label>
-            </div>
-          
-            <div class="column is-third-quarter">
-              <div class="control">
-                <input id="args" class="input" type="text" v-model="args" placeholder="Function Args" v-bind:class="{'is-success': args}">
-                <p class="help is-success" v-if="args">Function Args is valid</p>
+                <input id="toAddress" class="input" type="text" v-model="toAddress" placeholder="To Address" v-bind:class="{'is-danger': (!isToAddressValid && toAddress), 'is-success': isToAddressValid}">
+                <p class="help is-danger" v-if="!isToAddressValid && toAddress">To Address isn't valid</p>
+                <p class="help is-success" v-if="toAddress">To Address is valid</p>
               </div>
             </div>
           </div>
@@ -181,17 +129,35 @@
           </div>
         </div>
       </div>
-      
+
       <div class="panel-block">
         <div class="container">
           <div class="columns">
             <div class="column is-one-quarter">
-              <label class="label">Estimated Gas</label>
+              <label class="label" for="gas-price">Gas Price</label>
             </div>
           
             <div class="column is-third-quarter">
               <div class="control">
-                <p class="is-success">{{ estimatedGas }}</p>
+                <input id="gas-price" class="input" type="text" v-model="gasPrice" placeholder="Gas Price" v-bind:class="{'is-success': gasPrice}">
+                <p class="help is-success" v-if="gasPrice">Gas price is valid</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <div class="container">
+          <div class="columns">
+            <div class="column is-one-quarter">
+              <label class="label" for="gas">Gas</label>
+            </div>
+          
+            <div class="column is-third-quarter">
+              <div class="control">
+                <input id="gas" class="input" type="text" v-model="gas" placeholder="Gas" v-bind:class="{'is-success': gas}">
+                <p class="help is-success" v-if="gas">Gas is valid</p>
               </div>
             </div>
           </div>
@@ -218,7 +184,7 @@
     <div class="panel-block has-text-centered">
       <div class="container">
         <button class="button is-primary" v-on:click.prevent.self="importWallet">Import Wallet</button>
-        <button class="button is-info" v-on:click.prevent.self="contractTransaction" v-if="address">Contract Transaction</button>
+        <button class="button is-info" v-on:click.prevent.self="valueTransaction" v-if="address">Value Transaction</button>
       </div>
     </div>
 
@@ -232,7 +198,7 @@ import Message from '@/components/Message'
 import Web3 from 'web3'
 
 export default {
-  name: 'contract-transaction',
+  name: 'value-transaction',
   components: {
     Message
   },
@@ -248,13 +214,10 @@ export default {
       address: '',
       keystoreJson: '',
       host: '',
-      contractAddress: '',
-      abi: '',
-      name: '',
-      args: '',
+      toAddress: '',
       val: '',
-      estimatedGas: 0,
-      contract: {},
+      gasPrice: '',
+      gas: '',
       pwDerivedKey: [],
       result: '',
       web3: {}
@@ -278,22 +241,11 @@ export default {
       }
       return /https?:\/\/([\w.]+):?([\d]+)?/.test(this.host)
     },
-    isContractAddressValid () {
-      if (!this.contractAddress) {
+    isToAddressValid () {
+      if (!this.toAddress) {
         return false
       }
-      return /0x[a-zA-Z0-9]{40}/.test(this.contractAddress)
-    },
-    isAbiValid () {
-      if (!this.abi) {
-        return false
-      }
-      try {
-        JSON.parse(this.abi)
-      } catch (e) {
-        return false
-      }
-      return true
+      return /0x[a-zA-Z0-9]{40}/.test(this.toAddress)
     }
   },
   methods: {
@@ -389,20 +341,15 @@ export default {
       web3.setProvider(provider)
       return web3
     },
-    contractTransaction () {
+    valueTransaction () {
       if (!this.host) {
         this.error = true
         this.msg = 'Please enter host'
         return
       }
-      if (!this.contractAddress) {
+      if (!this.toAddress) {
         this.error = true
-        this.msg = 'Please enter contract address'
-        return
-      }
-      if (!this.abi) {
-        this.error = true
-        this.msg = 'Please enter contract abi'
+        this.msg = 'Please enter to address'
         return
       }
       var web3
@@ -413,31 +360,13 @@ export default {
       } else {
         web3 = this.web3
       }
-      // if (!web3.currentProvider) {
-      // }
-      var contract
-      var abi = JSON.parse(this.abi)
-
-      if (!this.contract.abi) {
-        contract = web3.eth.contract(abi).at(this.contractAddress)
-        this.contract = contract
-      } else {
-        contract = this.contract
-      }
-
-      var contractData = contract[this.name].getData()
-
-      var estimatedGas = web3.eth.estimateGas({ from: this.address, data: contractData })
-      // var gasLimit = estimatedGas * 1.2
-
-      this.estimatedGas = estimatedGas
 
       web3.eth.getTransactionCount(this.address, function (err, nonce) {
         if (err) {
           throw err
         }
-        var funcTx = lightwallet.txutils.functionTx(abi, this.name, this.args, {to: this.contractAddress, gas: estimatedGas, nonce: nonce, value: this.val})
-        var signedTx = lightwallet.signing.signTx(this.keystore, this.pwDerivedKey, funcTx, this.keystore.getAddresses()[0])
+        var valueTx = lightwallet.txutils.valueTx({to: this.toAddress, value: this.val, nonce: nonce, gas: this.gas})
+        var signedTx = lightwallet.signing.signTx(this.keystore, this.pwDerivedKey, valueTx, this.keystore.getAddresses()[0])
 
         web3.eth.sendRawTransaction(signedTx.toString('hex'), function (err, txId) {
           if (err) {

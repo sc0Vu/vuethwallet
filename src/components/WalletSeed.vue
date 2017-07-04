@@ -75,20 +75,13 @@
             <p>{{ privateKey }}</p>
           </div>
         </div>
-        <div class="columns">
-          <div class="column is-one-quarter">
-            <p>Keystore JSON</p>
-          </div>
-          <div class="column is-three-quarter">
-            <a class="button is-danger" download="keystore.json" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
-          </div>
-        </div>
       </div>
     </div>
 
     <div class="panel-block has-text-centered">
       <div class="container">
         <button class="button is-primary" v-on:click.prevent.self="generate">Generate Wallet</button>
+        <a class="button is-danger" download="keystore.json" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
       </div>
     </div>
   </div>
