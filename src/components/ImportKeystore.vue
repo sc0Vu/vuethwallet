@@ -63,12 +63,6 @@
       </div>
     </div>
 
-    <div class="panel-block has-text-centered">
-      <div class="container">
-        <button class="button is-primary file-button" v-on:click.prevent.self="importWallet">Import Wallet</button>
-      </div>
-    </div>
-
     <div class="panel-block has-text-centered" v-if="address">
       <div class="container">
         <div class="columns">
@@ -79,6 +73,12 @@
             <p>{{ address }}</p>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="panel-block has-text-centered">
+      <div class="container">
+        <button class="button is-primary file-button" v-on:click.prevent.self="importWallet">Import Wallet</button>
       </div>
     </div>
   </div>

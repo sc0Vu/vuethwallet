@@ -63,20 +63,21 @@
       </div>
     </div>
 
+  <template v-if="address">
+    <div class="panel-block has-text-centered" >
+      <div class="container">
+        <div class="columns">
+          <div class="column is-one-quarter">
+            <p>Address</p>
+          </div>
+          <div class="column is-three-quarter">
+            <p>{{ address }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="panel-block has-text-centered">
-      <div class="container">
-        <button class="button is-primary" v-on:click.prevent.self="importWallet">Import Wallet</button>
-      </div>
-    </div>
-
-    <div class="panel-block has-text-centered" v-if="address">
-      <div class="container">
-        <p>Address</p>
-        <p>{{ address }}</p>
-      </div>
-    </div>
-
-    <div class="panel-block has-text-centered" v-if="address">
       <div class="container">
         <div class="columns">
           <div class="column is-one-quarter">
@@ -94,7 +95,7 @@
       </div>
     </div>
 
-    <div class="panel-block has-text-centered" v-if="address">
+    <div class="panel-block has-text-centered">
       <div class="container">
         <div class="columns">
           <div class="column is-one-quarter">
@@ -112,7 +113,7 @@
       </div>
     </div>
 
-    <div class="panel-block has-text-centered" v-if="address">
+    <div class="panel-block has-text-centered">
       <div class="container">
         <div class="columns">
           <div class="column is-one-quarter">
@@ -130,7 +131,7 @@
       </div>
     </div>
 
-    <div class="panel-block has-text-centered" v-if="address">
+    <div class="panel-block has-text-centered">
       <div class="container">
         <div class="columns">
           <div class="column is-one-quarter">
@@ -147,7 +148,7 @@
       </div>
     </div>
 
-    <div class="panel-block has-text-centered" v-if="address">
+    <div class="panel-block has-text-centered">
       <div class="container">
         <div class="columns">
           <div class="column is-one-quarter">
@@ -164,7 +165,7 @@
       </div>
     </div>
 
-    <div class="panel-block has-text-centered" v-if="address">
+    <div class="panel-block has-text-centered">
       <div class="container">
         <div class="columns">
           <div class="column is-one-quarter">
@@ -181,7 +182,7 @@
       </div>
     </div>
     
-    <div class="panel-block has-text-centered" v-if="address">
+    <div class="panel-block has-text-centered">
       <div class="container">
         <div class="columns">
           <div class="column is-one-quarter">
@@ -212,10 +213,12 @@
         </div>
       </div>
     </div>
+  </template>
 
-    <div class="panel-block has-text-centered" v-if="address">
+    <div class="panel-block has-text-centered">
       <div class="container">
-        <button class="button is-info" v-on:click.prevent.self="contractTransaction">Contract Transaction</button>
+        <button class="button is-primary" v-on:click.prevent.self="importWallet">Import Wallet</button>
+        <button class="button is-info" v-on:click.prevent.self="contractTransaction" v-if="address">Contract Transaction</button>
       </div>
     </div>
 

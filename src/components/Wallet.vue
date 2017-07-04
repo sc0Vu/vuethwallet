@@ -31,12 +31,6 @@
       </div>
     </div>
 
-    <div class="panel-block has-text-centered">
-      <div class="container">
-        <button class="button is-primary" v-on:click.prevent.self="generate">Generate Wallet</button>
-      </div>
-    </div>
-
     <div class="panel-block" v-if="address">
       <div class="container">
         <div class="columns">
@@ -71,6 +65,12 @@
             <a class="button is-danger" download="keystore.json" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="panel-block has-text-centered">
+      <div class="container">
+        <button class="button is-primary" v-on:click.prevent.self="generate">Generate Wallet</button>
       </div>
     </div>
   </div>
