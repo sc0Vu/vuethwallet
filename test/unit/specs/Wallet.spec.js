@@ -4,6 +4,7 @@ import Wallet from '@/components/Wallet'
 describe('Wallet.vue', () => {
   var weakPassword = 'aaaaaaaa'
   var strongPassword = 'adskvnjsklfbnskglkljdgnbmvmv'
+  var randomSeed = 'rice hello computer newbie name world earth fox mouce key keyboard screen'
 
   it('should have wallet name', () => {
     expect(Wallet.name)
@@ -24,7 +25,7 @@ describe('Wallet.vue', () => {
     expect(data.type).to.equal('text')
     expect(data.buttonText).to.equal('Hide')
     expect(data.score).to.equal(0)
-    // expect(data.keystore).to.equal({})
+    expect(data.keystore).to.deep.equal({})
     expect(data.address).to.equal('')
     expect(data.randomSeed).to.equal('')
     expect(data.privateKey).to.equal('')
@@ -156,6 +157,25 @@ describe('Wallet.vue', () => {
         .to.equal('')
       expect(randomSeed.length)
         .to.equal(12)
+    })
+  })
+
+  it('should create a valid address', () => {
+    const Constructor = Vue.extend(Wallet)
+    const vm = new Constructor({}).$mount()
+
+    vm.password = strongPassword
+    vm.randomSeed = randomSeed
+    vm.newAddress(vm.password)
+    Vue.nextTick(() => {
+      expect(vm.error)
+        .to.equal(false)
+      expect(vm.msg)
+        .to.equal('Wallet create successfully!')
+      expect(vm.address.length > 0).toBe(true)
+      expect(vm.privateKey.length > 0).toBe(true)
+      expect(vm.keystoreJson.length > 0).toBe(true)
+      expect(vm.keystoreJsonDataLink.length > 0).toBe(true)
     })
   })
 })

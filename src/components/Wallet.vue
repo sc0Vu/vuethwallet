@@ -125,7 +125,6 @@ export default {
         var address = this.keystore.getAddresses()[0]
 
         this.address = '0x' + address
-        // console.log(pwDerivedKey, this.keystore.serialize())
         this.privateKey = this.keystore.exportPrivateKey(address, pwDerivedKey)
         this.keystoreJson = this.keystore.serialize()
         this.keystoreJsonDataLink = encodeURI('data:application/json;charset=utf-8,' + this.keystoreJson)
@@ -146,13 +145,10 @@ export default {
         return
       }
 
-      // var extraEntropy = 'testentropy'
-      // var randomSeed = lightwallet.keystore.generateRandomSeed(extraEntropy)
+      // generate random seed
       var randomSeed = lightwallet.keystore.generateRandomSeed()
 
-      // console.log(this.password, extraEntropy, randomSeed)
       this.randomSeed = randomSeed
-      // console.log(this.password, randomSeed)
 
       lightwallet.keystore.createVault({password: this.password, seedPhrase: randomSeed, hdPathString: "m/44'/60'/0'/0"}, function (err, keystore) {
         if (err) {
