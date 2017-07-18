@@ -63,7 +63,7 @@
     <div class="panel-block has-text-centered">
       <div class="container">
         <button class="button is-primary" v-on:click.prevent.self="generate">Generate Wallet</button>
-        <a class="button is-danger" download="keystore.json" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
+        <a class="button is-danger download-button" download="keystore.json" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
       </div>
     </div>
   </div>

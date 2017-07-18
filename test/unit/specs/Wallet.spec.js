@@ -176,6 +176,8 @@ describe('Wallet.vue', () => {
       expect(vm.privateKey.length > 0).toBe(true)
       expect(vm.keystoreJson.length > 0).toBe(true)
       expect(vm.keystoreJsonDataLink.length > 0).toBe(true)
+      expect(vm.$el.querySelector('.button.is-danger.download-button').textContent.trim())
+      .to.equal('Download')
     })
   })
 })

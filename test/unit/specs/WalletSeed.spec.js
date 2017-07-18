@@ -26,7 +26,7 @@ describe('Wallet.vue', () => {
     expect(data.type).to.equal('text')
     expect(data.buttonText).to.equal('Hide')
     expect(data.score).to.equal(0)
-    // expect(data.keystore).to.equal({})
+    expect(data.keystore).to.deep.equal({})
     expect(data.address).to.equal('')
     expect(data.randomSeed).to.equal('')
     expect(data.privateKey).to.equal('')
@@ -207,6 +207,27 @@ describe('Wallet.vue', () => {
         .to.equal('')
       expect(typeof vm.keystore.getAddresses)
         .to.equal('function')
+    })
+  })
+
+  it('should create a valid address', () => {
+    const Constructor = Vue.extend(Wallet)
+    const vm = new Constructor({}).$mount()
+
+    vm.password = strongPassword
+    vm.randomSeed = validSeed
+    vm.newAddress(vm.password)
+    Vue.nextTick(() => {
+      expect(vm.error)
+        .to.equal(false)
+      expect(vm.msg)
+        .to.equal('Wallet create successfully!')
+      expect(vm.address.length > 0).toBe(true)
+      expect(vm.privateKey.length > 0).toBe(true)
+      expect(vm.keystoreJson.length > 0).toBe(true)
+      expect(vm.keystoreJsonDataLink.length > 0).toBe(true)
+      expect(vm.$el.querySelector('.button.is-danger.download-button').textContent.trim())
+      .to.equal('Download')
     })
   })
 })
