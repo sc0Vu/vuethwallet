@@ -1,4 +1,4 @@
-# vue-ethwallet
+# vuethwallet
 
 A simple app using eth-lightwallet and vuejs to generate ethereum wallet.
 
@@ -6,9 +6,9 @@ A simple app using eth-lightwallet and vuejs to generate ethereum wallet.
 
     clone the repo
 
-    npm install or yarn install
+    npm install
 
-    npm run dev or yarn run dev
+    npm run dev
 
 Have fun with vue-ethereum wallet app.
 
