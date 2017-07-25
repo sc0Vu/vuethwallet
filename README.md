@@ -30,6 +30,10 @@ import wallet from keystore.json
 
 make contract transaction
 
+5. /value-transaction
+
+make value transaction
+
 # Test
 
 1. unit
@@ -37,14 +41,12 @@ make contract transaction
     npm run unit
 
 2. e2e
-    
-    to be continued
 
     npm run e2e
 
 3. all
 
-    npm run test or yarn run test
+    npm run test
 
 # Demo
 
