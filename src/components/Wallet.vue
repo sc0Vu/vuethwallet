@@ -92,7 +92,8 @@ export default {
       randomSeed: '',
       privateKey: '',
       keystoreJson: '',
-      keystoreJsonDataLink: ''
+      keystoreJsonDataLink: '',
+      hdPathString: 'm/44\'/60\'/0\'/0'
     }
   },
   methods: {
@@ -120,12 +121,13 @@ export default {
           this.msg = 'Something wrong happened!'
           throw err
         }
-        this.keystore.generateNewAddress(pwDerivedKey, 1)
+        this.keystore.generateNewAddress(pwDerivedKey, 1, this.hdPathString)
 
         var address = this.keystore.getAddresses()[0]
 
         this.address = '0x' + address
         this.privateKey = this.keystore.exportPrivateKey(address, pwDerivedKey)
+        this.randomSeed = this.keystore.getSeed(pwDerivedKey)
         this.keystoreJson = this.keystore.serialize()
         this.keystoreJsonDataLink = encodeURI('data:application/json;charset=utf-8,' + this.keystoreJson)
 
@@ -146,11 +148,13 @@ export default {
       }
 
       // generate random seed
-      var randomSeed = lightwallet.keystore.generateRandomSeed()
+      // due to keystore will generate so comment this
+      // see https://github.com/ConsenSys/eth-lightwallet/blob/master/lib/keystore.js#L128
+      // var randomSeed = lightwallet.keystore.generateRandomSeed()
 
-      this.randomSeed = randomSeed
+      // this.randomSeed = randomSeed
 
-      lightwallet.keystore.createVault({password: this.password, seedPhrase: randomSeed, hdPathString: "m/44'/60'/0'/0"}, function (err, keystore) {
+      lightwallet.keystore.createVault({password: this.password, hdPathString: this.hdPathString}, function (err, keystore) {
         if (err) {
           this.error = true
           this.msg = 'Something wrong happened!'
