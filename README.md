@@ -1,4 +1,5 @@
 # vuethwallet
+[![Build Status](https://travis-ci.org/sc0Vu/vuethwallet.svg?branch=master)](https://travis-ci.org/sc0Vu/vuethwallet)
 
 A simple app using eth-lightwallet and vuejs to generate ethereum wallet.
 
