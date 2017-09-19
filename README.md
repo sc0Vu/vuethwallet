@@ -51,8 +51,6 @@ make value transaction
 
 # Demo
 
-![live-demo](https://user-images.githubusercontent.com/10494397/27172628-80f4fba2-51e8-11e7-9368-e89d56e7f422.gif)
-## Support on Beerpay
-Hey dude! Help me out for a couple of :beers:!
+Deployed on heroku (build branch): [demo](https://vuethwallet.herokuapp.com/)
 
-[![Beerpay](https://beerpay.io/sc0Vu/vue-ethwallet/badge.svg?style=beer-square)](https://beerpay.io/sc0Vu/vue-ethwallet)  [![Beerpay](https://beerpay.io/sc0Vu/vue-ethwallet/make-wish.svg?style=flat-square)](https://beerpay.io/sc0Vu/vue-ethwallet?focus=wish)
+![demo-image](https://user-images.githubusercontent.com/10494397/27172628-80f4fba2-51e8-11e7-9368-e89d56e7f422.gif)
