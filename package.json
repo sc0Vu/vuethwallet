@@ -6,15 +6,18 @@
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
-    "start": "node build/dev-server.js",
+    "start": "node bin/static.js",
     "build": "node build/build.js",
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
     "e2e": "node test/e2e/runner.js",
     "test": "npm run unit",
-    "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
+    "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "eth-lightwallet": "^2.5.4",
+    "koa": "^2.3.0",
+    "koa-static": "^4.0.1",
     "vue": "^2.2.6",
     "vue-router": "^2.3.1",
     "zxcvbn": "^4.4.2"
