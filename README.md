@@ -60,8 +60,12 @@ make value transaction
 4. Enter the params required.
 
 5. Click the transaction button.
-  
-  If error occure, it throws, or it shows the transaction id.
+
+   If error occure, it throws, or it shows the transaction id.
+   
+   You can search transaction id or your account information at [ethscan](https://etherscan.io/).
+   
+   Remember change ethscan to the right network eg, mainnet, rinkeby etc.
 
 # Demo
 
