@@ -84,11 +84,22 @@
               <label class="label" for="host">Host</label>
             </div>
           
-            <div class="column is-third-quarter">
+            <div class="column is-half">
               <div class="control">
                 <input id="host" class="input" type="text" v-model="host" placeholder="Host" v-bind:class="{'is-danger': (!isHostValid && host), 'is-success': isHostValid}" v-on:change="resetWeb3">
                 <p class="help is-danger" v-if="!isHostValid && host">Host isn't valid</p>
                 <p class="help is-success" v-if="isHostValid">Host is valid</p>
+              </div>
+            </div>
+
+            <div class="column is-one-quarter">
+              <div class="select is-info">
+                <select v-model="host">
+                  <option value="">------</option>
+                  <option v-for="(host, key) in hosts" v-bind:value="host.rpcUri">
+                    {{ `${key} ${(host.test === true) ? 'test network' : 'network'}` }}
+                  </option>
+                </select>
               </div>
             </div>
           </div>
@@ -213,6 +224,7 @@ import zxcvbn from 'zxcvbn'
 import lightwallet from 'eth-lightwallet'
 import Message from '@/components/Message'
 import Web3 from 'web3'
+import config from '@/config'
 
 export default {
   name: 'value-transaction',
@@ -238,8 +250,12 @@ export default {
       gas: '',
       pwDerivedKey: [],
       result: '',
-      web3: {}
+      web3: {},
+      hosts: {}
     }
+  },
+  created () {
+    this.hosts = config.hosts || {}
   },
   computed: {
     isKeystoreJsonValid () {
