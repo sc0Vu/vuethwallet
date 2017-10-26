@@ -84,11 +84,22 @@
               <label class="label" for="host">Host</label>
             </div>
           
-            <div class="column is-third-quarter">
+            <div class="column is-half">
               <div class="control">
                 <input id="host" class="input" type="text" v-model="host" placeholder="Host" v-bind:class="{'is-danger': (!isHostValid && host), 'is-success': isHostValid}" v-on:change="resetWeb3">
                 <p class="help is-danger" v-if="!isHostValid && host">Host isn't valid</p>
                 <p class="help is-success" v-if="isHostValid">Host is valid</p>
+              </div>
+            </div>
+
+            <div class="column is-one-quarter">
+              <div class="select is-info">
+                <select v-model="host">
+                  <option value="">------</option>
+                  <option v-for="(host, key) in hosts" v-bind:value="host.rpcUri">
+                    {{ `${key} ${(host.test === true) ? 'test network' : 'network'}` }}
+                  </option>
+                </select>
               </div>
             </div>
           </div>
@@ -151,6 +162,23 @@
         <div class="container">
           <div class="columns">
             <div class="column is-one-quarter">
+              <label class="label" for="gas-limit">Gas Limit</label>
+            </div>
+          
+            <div class="column is-third-quarter">
+              <div class="control">
+                <input id="gas-limit" class="input" type="text" v-model="gasLimit" placeholder="Gas Limit" v-bind:class="{'is-success': gasLimit}">
+                <p class="help is-success" v-if="gasLimit">Gas limit is valid</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <div class="container">
+          <div class="columns">
+            <div class="column is-one-quarter">
               <label class="label" for="gas">Gas</label>
             </div>
           
@@ -196,6 +224,7 @@ import zxcvbn from 'zxcvbn'
 import lightwallet from 'eth-lightwallet'
 import Message from '@/components/Message'
 import Web3 from 'web3'
+import config from '@/config'
 
 export default {
   name: 'value-transaction',
@@ -217,11 +246,16 @@ export default {
       toAddress: '',
       val: '',
       gasPrice: '',
+      gasLimit: '',
       gas: '',
       pwDerivedKey: [],
       result: '',
-      web3: {}
+      web3: {},
+      hosts: {}
     }
+  },
+  created () {
+    this.hosts = config.hosts || {}
   },
   computed: {
     isKeystoreJsonValid () {
@@ -352,23 +386,17 @@ export default {
         this.msg = 'Please enter to address'
         return
       }
-      var web3
 
-      if (!this.web3.eth) {
-        web3 = this.createWeb3()
-        this.web3 = web3
-      } else {
-        web3 = this.web3
-      }
+      var web3 = this.web3
 
       web3.eth.getTransactionCount(this.address, function (err, nonce) {
         if (err) {
           throw err
         }
-        var valueTx = lightwallet.txutils.valueTx({to: this.toAddress, value: this.val, nonce: nonce, gas: this.gas})
-        var signedTx = lightwallet.signing.signTx(this.keystore, this.pwDerivedKey, valueTx, this.keystore.getAddresses()[0])
+        var valueTx = lightwallet.txutils.valueTx({to: this.toAddress, value: this.val, nonce: nonce, gas: this.gas, gasPrice: this.gasPrice, gasLimit: this.gasLimit})
+        var signedTx = lightwallet.signing.signTx(this.keystore, this.pwDerivedKey, valueTx, this.address)
 
-        web3.eth.sendRawTransaction(signedTx.toString('hex'), function (err, txId) {
+        web3.eth.sendRawTransaction('0x' + signedTx.toString('hex'), function (err, txId) {
           if (err) {
             throw err
           }
@@ -379,6 +407,15 @@ export default {
     resetWeb3 () {
       if (this.web3.eth) {
         this.web3 = {}
+      }
+    }
+  },
+  watch: {
+    host (val, oval) {
+      if (this.isHostValid) {
+        if (val !== oval) {
+          this.web3 = this.createWeb3()
+        }
       }
     }
   }
