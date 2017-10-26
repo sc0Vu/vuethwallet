@@ -49,6 +49,20 @@ make value transaction
 
     npm run test
 
+# Send value
+
+1. Choose the value transaction or go to /value-transaction.
+
+2. Import your wallet file and enter the password.
+
+3. Enter the host or choose the test net host.
+
+4. Enter the params required.
+
+5. Click the transaction button.
+  
+  If error occure, it throws, or it shows the transaction id.
+
 # Demo
 
 Deployed on heroku (build branch): [demo](https://vuethwallet.herokuapp.com/)
