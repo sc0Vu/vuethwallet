@@ -1,1 +1,0 @@
-{"version":3,"sources":["webpack:///./src/App.vue"],"names":[],"mappings":"AACA,kCACE,qBAAsB","file":"static/css/app.40a3707c48cd0c63f9eb23f797cd2cc5.css","sourcesContent":["\n.navbar-start > .navbar-item.active {\r\n  background-color: #eee\n}\r\n\n\n\n// WEBPACK FOOTER //\n// ./src/App.vue"],"sourceRoot":""}
