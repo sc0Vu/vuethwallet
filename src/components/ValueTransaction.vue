@@ -386,14 +386,8 @@ export default {
         this.msg = 'Please enter to address'
         return
       }
-      var web3
 
-      if (!this.web3.eth) {
-        web3 = this.createWeb3()
-        this.web3 = web3
-      } else {
-        web3 = this.web3
-      }
+      var web3 = this.web3
 
       web3.eth.getTransactionCount(this.address, function (err, nonce) {
         if (err) {
@@ -413,6 +407,15 @@ export default {
     resetWeb3 () {
       if (this.web3.eth) {
         this.web3 = {}
+      }
+    }
+  },
+  watch: {
+    host (val, oval) {
+      if (this.isHostValid) {
+        if (val !== oval) {
+          this.web3 = this.createWeb3()
+        }
       }
     }
   }
