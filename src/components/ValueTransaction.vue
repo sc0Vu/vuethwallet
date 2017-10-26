@@ -151,6 +151,23 @@
         <div class="container">
           <div class="columns">
             <div class="column is-one-quarter">
+              <label class="label" for="gas-limit">Gas Limit</label>
+            </div>
+          
+            <div class="column is-third-quarter">
+              <div class="control">
+                <input id="gas-limit" class="input" type="text" v-model="gasLimit" placeholder="Gas Limit" v-bind:class="{'is-success': gasLimit}">
+                <p class="help is-success" v-if="gasLimit">Gas limit is valid</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <div class="container">
+          <div class="columns">
+            <div class="column is-one-quarter">
               <label class="label" for="gas">Gas</label>
             </div>
           
@@ -217,6 +234,7 @@ export default {
       toAddress: '',
       val: '',
       gasPrice: '',
+      gasLimit: '',
       gas: '',
       pwDerivedKey: [],
       result: '',
@@ -365,10 +383,10 @@ export default {
         if (err) {
           throw err
         }
-        var valueTx = lightwallet.txutils.valueTx({to: this.toAddress, value: this.val, nonce: nonce, gas: this.gas})
-        var signedTx = lightwallet.signing.signTx(this.keystore, this.pwDerivedKey, valueTx, this.keystore.getAddresses()[0])
+        var valueTx = lightwallet.txutils.valueTx({to: this.toAddress, value: this.val, nonce: nonce, gas: this.gas, gasPrice: this.gasPrice, gasLimit: this.gasLimit})
+        var signedTx = lightwallet.signing.signTx(this.keystore, this.pwDerivedKey, valueTx, this.address)
 
-        web3.eth.sendRawTransaction(signedTx.toString('hex'), function (err, txId) {
+        web3.eth.sendRawTransaction('0x' + signedTx.toString('hex'), function (err, txId) {
           if (err) {
             throw err
           }
