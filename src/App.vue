@@ -2,6 +2,9 @@
 .navbar-start > .navbar-item.active {
   background-color: #eee
 }
+.section .panel {
+  overflow: hidden;
+}
 </style>
 
 <template>
