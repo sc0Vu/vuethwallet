@@ -171,6 +171,7 @@ export default {
         this.msg = 'Password is not strong, please change!'
         return
       }
+      this.error = false
 
       var keystore = lightwallet.keystore.deserialize(this.keystoreJson)
 
