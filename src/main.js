@@ -18,7 +18,7 @@ router.afterEach(function (to, from) {
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
+  el: '#vuethwallet',
   router,
   template: '<App/>',
   components: { App }
