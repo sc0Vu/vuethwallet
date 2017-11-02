@@ -9,9 +9,9 @@ A simple app using eth-lightwallet and vuejs to generate ethereum wallet.
 Run development environment
 
 ```
-    clone the repo
-    npm install
-    npm run dev
+clone the repo
+npm install
+npm run dev
 ```
 
 Build assets
