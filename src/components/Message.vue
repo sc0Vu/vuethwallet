@@ -8,7 +8,20 @@
 <script>
 export default {
   name: 'message',
-  props: ['message', 'error'],
+  props: {
+    message: {
+      type: String,
+      default () {
+        return ''
+      }
+    },
+    error: {
+      type: Boolean,
+      default () {
+        return false
+      }
+    }
+  },
   methods: {
     clearMessage () {
       // this.message = ''
