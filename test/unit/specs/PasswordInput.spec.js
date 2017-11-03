@@ -80,17 +80,33 @@ describe('PasswordInput.vue', () => {
       expect(vm.score)
         .to.equal(0)
 
-      vm.password = strongPassword
+      vm.password = '    '
       vm.checkPassword()
 
       Vue.nextTick(() => {
-        expect(vm.$el.querySelector('#pass').classList.contains('is-success'))
-          .to.equal(true)
-        expect(vm.$el.querySelector('.help.is-success.password-help > .password-help-msg').textContent.trim())
-        .to.equal('Strong Password')
-        expect(vm.score > 0)
-          .to.equal(true)
-        done()
+        expect(vm.$el.querySelector('#pass').classList.contains('is-danger'))
+        .to.equal(true)
+        expect(vm.$el.querySelector('.help.is-danger.password-help > .password-help-msg').textContent.trim())
+          .to.equal('Weak Password')
+        expect(vm.$el.querySelector('.help.is-danger.password-help > .password-help-suggestions').textContent.trim())
+          .to.equal('Suggestions: Add another word or two. Uncommon words are better.,Avoid repeated words and characters')
+        expect(vm.$el.querySelector('.help.is-danger.password-help > .password-help-warning').textContent.trim())
+          .to.equal('Warning: Repeats like "aaa" are easy to guess')
+        expect(vm.score)
+          .to.equal(0)
+
+        vm.password = strongPassword
+        vm.checkPassword()
+
+        Vue.nextTick(() => {
+          expect(vm.$el.querySelector('#pass').classList.contains('is-success'))
+            .to.equal(true)
+          expect(vm.$el.querySelector('.help.is-success.password-help > .password-help-msg').textContent.trim())
+          .to.equal('Strong Password')
+          expect(vm.score > 0)
+            .to.equal(true)
+          done()
+        })
       })
     })
   })

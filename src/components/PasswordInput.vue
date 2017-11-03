@@ -42,7 +42,7 @@ export default {
   },
   computed: {
     isPasswordValid () {
-      return this.score >= 3 && !/^(?:[\s]+)$/.test(this.password)
+      return this.score >= 3 && !/(?:[\s]+)/.test(this.password)
     },
     emptyPassword () {
       return this.password === '' || this.password === null || this.password === undefined
