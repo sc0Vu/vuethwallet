@@ -1,11 +1,13 @@
 import Vue from 'vue'
-import Wallet from '@/components/WalletSeed'
+import Wallet from '@/views/WalletSeed'
+import zxcvbn from 'zxcvbn'
 
-describe('Wallet.vue', () => {
-  var weakPassword = 'aaaaaaaa'
-  var strongPassword = 'adskvnjsklfbnskglkljdgnbmvmv'
-  var validSeed = 'donor supreme valley slight promote impose guard sunny snap shiver bag bamboo'
-  var invalidSeed = 'promote impose guard sunny snap shiver bag bamboo'
+describe('WalletSeed.vue', () => {
+  const weakPassword = zxcvbn('aaaaaaaa')
+  const strongPassword = zxcvbn('adskvnjsklfbnskglkljdgnbmvmv')
+  const validSeed = 'donor supreme valley slight promote impose guard sunny snap shiver bag bamboo'
+  const invalidSeed = 'promote impose guard sunny snap shiver bag bamboo'
+  const Constructor = Vue.extend(Wallet)
 
   it('should have wallet name', () => {
     expect(Wallet.name)
@@ -14,6 +16,11 @@ describe('Wallet.vue', () => {
 
   it('should have message components', () => {
     expect(typeof Wallet.components.Message)
+      .to.equal('object')
+  })
+
+  it('should have password input components', () => {
+    expect(typeof Wallet.components.PasswordInput)
       .to.equal('object')
   })
 
@@ -39,13 +46,13 @@ describe('Wallet.vue', () => {
       .to.equal('function')
   })
 
-  it('should have method switchType', () => {
-    expect(typeof Wallet.methods.switchType)
+  it('should have method failed', () => {
+    expect(typeof Wallet.methods.failed)
       .to.equal('function')
   })
 
-  it('should have method checkPassword', () => {
-    expect(typeof Wallet.methods.checkPassword)
+  it('should have method success', () => {
+    expect(typeof Wallet.methods.success)
       .to.equal('function')
   })
 
@@ -59,58 +66,7 @@ describe('Wallet.vue', () => {
       .to.equal('function')
   })
 
-  it('should change password input type and password button text', () => {
-    const Constructor = Vue.extend(Wallet)
-    const vm = new Constructor({}).$mount()
-
-    vm.password = weakPassword
-    expect(vm.$el.querySelector('#pass').type)
-      .to.equal('text')
-    expect(vm.$el.querySelector('.button.is-info.password-button').textContent.trim())
-      .to.equal('Hide')
-    vm.switchType()
-
-    Vue.nextTick(() => {
-      expect(vm.password)
-        .to.equal(weakPassword)
-      expect(vm.$el.querySelector('#pass').type)
-        .to.equal('password')
-      expect(vm.$el.querySelector('.button.is-info.password-button').textContent.trim())
-      .to.equal('Show')
-    })
-  })
-
-  it('should check password and change password input class and password help text', () => {
-    const Constructor = Vue.extend(Wallet)
-    const vm = new Constructor({}).$mount()
-
-    vm.password = weakPassword
-    vm.checkPassword()
-
-    Vue.nextTick(() => {
-      expect(vm.$el.querySelector('#pass').classList.has('is-danger'))
-        .to.equal(true)
-      expect(vm.$el.querySelector('.help.is-danger.password-help').textContent.trim())
-        .to.equal('Weak Password')
-      expect(vm.score)
-        .to.equal(0)
-
-      vm.password = strongPassword
-      vm.checkPassword()
-
-      Vue.nextTick(() => {
-        expect(vm.$el.querySelector('#pass').classList.has('is-success'))
-          .to.equal(true)
-        expect(vm.$el.querySelector('.help.is-success.password-help').textContent.trim())
-        .to.equal('Strong Password')
-        expect(vm.score > 0)
-          .to.equal(true)
-      })
-    })
-  })
-
-  it('should check randomSeed and randomSeed input class and randomSeed help text', () => {
-    const Constructor = Vue.extend(Wallet)
+  it('should check randomSeed and randomSeed input class and randomSeed help text', (done) => {
     const vm = new Constructor({}).$mount()
 
     vm.randomSeed = invalidSeed
@@ -118,7 +74,7 @@ describe('Wallet.vue', () => {
       .to.equal(false)
 
     Vue.nextTick(() => {
-      expect(vm.$el.querySelector('#seed').classList.has('is-danger'))
+      expect(vm.$el.querySelector('#seed').classList.contains('is-danger'))
         .to.equal(true)
       expect(vm.$el.querySelector('.help.is-danger.seed-help').textContent.trim())
         .to.equal('Random Seed isn\'t valid')
@@ -128,41 +84,44 @@ describe('Wallet.vue', () => {
         .to.equal(true)
 
       Vue.nextTick(() => {
-        expect(vm.$el.querySelector('#seed').classList.has('is-success'))
+        expect(vm.$el.querySelector('#seed').classList.contains('is-success'))
           .to.equal(true)
         expect(vm.$el.querySelector('.help.is-success.seed-help').textContent.trim())
         .to.equal('Random Seed is valid')
+        done()
       })
     })
   })
 
-  it('shouldn\'t create wallet', () => {
-    const Constructor = Vue.extend(Wallet)
+  it('shouldn\'t create wallet due to there is no keystore', () => {
     const vm = new Constructor({}).$mount()
 
-    vm.password = strongPassword
+    vm.success(strongPassword)
+
     expect(vm.newAddress(vm.password))
       .to.equal(false)
   })
 
-  it('should render check out random seed error contents', () => {
-    const Constructor = Vue.extend(Wallet)
+  it('should render check out random seed error contents', (done) => {
     const vm = new Constructor({}).$mount()
 
     vm.randomSeed = invalidSeed
-    vm.password = weakPassword
-    vm.generate()
+    vm.failed(weakPassword)
 
     Vue.nextTick(() => {
-      expect(vm.error)
-        .to.equal(true)
-      expect(vm.msg)
-        .to.equal('Please check out random seed!')
+      vm.generate()
+
+      Vue.nextTick(() => {
+        expect(vm.error)
+          .to.equal(true)
+        expect(vm.msg)
+          .to.equal('Please check out random seed!')
+        done()
+      })
     })
   })
 
-  it('should render enter password error contents', () => {
-    const Constructor = Vue.extend(Wallet)
+  it('should render enter password error contents', (done) => {
     const vm = new Constructor({}).$mount()
 
     vm.randomSeed = validSeed
@@ -174,60 +133,53 @@ describe('Wallet.vue', () => {
         .to.equal(true)
       expect(vm.msg)
         .to.equal('Please enter password!')
+      done()
     })
   })
 
-  it('should render not strong error contents', () => {
-    const Constructor = Vue.extend(Wallet)
+  it('should render not strong error contents', (done) => {
     const vm = new Constructor({}).$mount()
 
     vm.randomSeed = validSeed
-    vm.password = weakPassword
-    vm.generate()
+    vm.failed(weakPassword)
 
     Vue.nextTick(() => {
-      expect(vm.error)
-        .to.equal(true)
-      expect(vm.msg)
-        .to.equal('Password is not strong, please change!')
+      vm.generate()
+
+      Vue.nextTick(() => {
+        expect(vm.error)
+          .to.equal(true)
+        expect(vm.msg)
+          .to.equal('Password is not strong, please change!')
+        done()
+      })
     })
   })
 
-  it('should create valid keystore', () => {
-    const Constructor = Vue.extend(Wallet)
+  it('should create a valid address', (done) => {
     const vm = new Constructor({}).$mount()
 
+    vm.success(strongPassword)
     vm.randomSeed = validSeed
-    vm.password = strongPassword
-    vm.generate()
-    Vue.nextTick(() => {
-      expect(vm.error)
-        .to.equal(false)
-      expect(vm.msg)
-        .to.equal('')
-      expect(typeof vm.keystore.getAddresses)
-        .to.equal('function')
-    })
-  })
 
-  it('should create a valid address', () => {
-    const Constructor = Vue.extend(Wallet)
-    const vm = new Constructor({}).$mount()
-
-    vm.password = strongPassword
-    vm.randomSeed = validSeed
-    vm.newAddress(vm.password)
-    Vue.nextTick(() => {
-      expect(vm.error)
-        .to.equal(false)
-      expect(vm.msg)
-        .to.equal('Wallet create successfully!')
-      expect(vm.address.length > 0).toBe(true)
-      expect(vm.privateKey.length > 0).toBe(true)
-      expect(vm.keystoreJson.length > 0).toBe(true)
-      expect(vm.keystoreJsonDataLink.length > 0).toBe(true)
-      expect(vm.$el.querySelector('.button.is-danger.download-button').textContent.trim())
-      .to.equal('Download')
+    vm.generate(() => {
+      Vue.nextTick(() => {
+        expect(vm.error)
+          .to.equal(false)
+        expect(vm.msg)
+          .to.equal('Wallet create successfully!')
+        expect(vm.address.length > 0)
+          .to.equal(true)
+        expect(vm.privateKey.length > 0)
+          .to.equal(true)
+        expect(vm.keystoreJson.length > 0)
+          .to.equal(true)
+        expect(vm.keystoreJsonDataLink.length > 0)
+          .to.equal(true)
+        expect(vm.$el.querySelector('.button.is-danger.download-button').textContent.trim())
+          .to.equal('Download')
+        done()
+      })
     })
   })
 })

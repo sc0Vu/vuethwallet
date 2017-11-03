@@ -60,10 +60,11 @@ describe('Wallet.vue', () => {
       .to.equal('function')
   })
 
-  it('shouldn\'t create wallet', () => {
+  it('shouldn\'t create wallet due to there is no keystore', () => {
     const vm = new Constructor({}).$mount()
 
-    vm.password = strongPassword
+    vm.success(strongPassword)
+
     expect(vm.newAddress(vm.password))
       .to.equal(false)
   })

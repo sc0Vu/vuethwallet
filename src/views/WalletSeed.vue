@@ -64,7 +64,7 @@
     <div class="panel-block has-text-centered">
       <div class="container">
         <button class="button is-primary" v-on:click.prevent.self="generate">Generate Wallet</button>
-        <a class="button is-danger" download="keystore.json" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
+        <a class="button is-danger download-button" download="keystore.json" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
       </div>
     </div>
   </div>
@@ -116,7 +116,7 @@ export default {
       this.score = e.score
       this.password = e.password
     },
-    newAddress (password) {
+    newAddress (password, callback) {
       if (typeof this.keystore.getAddresses !== 'function') {
         return false
       }
@@ -138,9 +138,11 @@ export default {
 
         this.error = false
         this.msg = 'Wallet create successfully!'
+
+        callback()
       }.bind(this))
     },
-    generate () {
+    generate (callback) {
       if (!this.isSeedValid) {
         this.error = true
         this.msg = 'Please check out random seed!'
@@ -156,6 +158,9 @@ export default {
         this.msg = 'Password is not strong, please change!'
         return
       }
+      if (!callback || typeof callback !== 'function') {
+        callback = function () {}
+      }
 
       lightwallet.keystore.createVault({password: this.password, seedPhrase: this.randomSeed, hdPathString: "m/44'/60'/0'/0"}, function (err, keystore) {
         if (err) {
@@ -166,7 +171,7 @@ export default {
         // console.log(keystore)
 
         this.keystore = keystore
-        this.newAddress(this.password)
+        this.newAddress(this.password, callback)
       }.bind(this))
     }
   }
