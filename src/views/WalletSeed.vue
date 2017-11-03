@@ -138,7 +138,6 @@ export default {
 
         this.error = false
         this.msg = 'Wallet create successfully!'
-
         callback()
       }.bind(this))
     },
