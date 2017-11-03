@@ -5,7 +5,6 @@ import zxcvbn from 'zxcvbn'
 describe('Wallet.vue', () => {
   const weakPassword = zxcvbn('aaaaaaaa')
   const strongPassword = zxcvbn('adskvnjsklfbnskglkljdgnbmvmv')
-  const randomSeed = 'rice hello computer newbie name world earth fox mouce key keyboard screen'
   const Constructor = Vue.extend(Wallet)
 
   it('should have wallet name', () => {
