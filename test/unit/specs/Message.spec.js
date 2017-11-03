@@ -2,14 +2,18 @@ import Vue from 'vue'
 import Message from '@/components/Message'
 
 describe('Message.vue', () => {
+  const Constructor = Vue.extend(Message)
+
   it('should have message name', () => {
     expect(Message.name)
       .to.equal('message')
   })
 
   it('should have two props', () => {
-    expect(Message.props.length)
-      .to.equal(2)
+    expect(Message.props.message)
+      .to.not.equal(undefined)
+    expect(Message.props.error)
+      .to.not.equal(undefined)
   })
 
   it('should have method clearMessage', () => {
@@ -18,7 +22,6 @@ describe('Message.vue', () => {
   })
 
   it('should render error contents', () => {
-    const Constructor = Vue.extend(Message)
     const vm = new Constructor({propsData: {
       error: true,
       message: 'Error'
@@ -28,7 +31,6 @@ describe('Message.vue', () => {
   })
 
   it('should render success contents', () => {
-    const Constructor = Vue.extend(Message)
     const vm = new Constructor({propsData: {
       error: false,
       message: 'Success'
