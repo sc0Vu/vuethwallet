@@ -10,24 +10,7 @@
 
     <div class="panel-block">
       <div class="container">
-        <div class="columns">
-          <div class="column is-one-quarter">
-            <label class="label" for="pass">Password</label>
-          </div>
-        
-          <div class="column is-half">
-            <div class="control">
-              <input id="pass" class="input" type="text" v-model="password" placeholder="Password" v-on:change.prevent.self="checkPassword" v-if="type === 'text'" v-bind:class="{'is-danger': ((score < 3 && password) || error), 'is-success': (score >= 3 && password)}">
-              <input id="pass" class="input" type="password" v-model="password" placeholder="Password" v-on:change.prevent.self="checkPassword" v-if="type === 'password'" v-bind:class="{'is-danger': ((score < 3 && password) || error), 'is-success': (score >= 3 && password)}">
-              <p class="help is-danger password-help" v-if="score < 3 && password">Weak Password</p>
-              <p class="help is-success password-help" v-if="score >= 3 && password">Strong Password</p>
-            </div>
-          </div>
-
-          <div class="column is-one-quarter">
-            <button class="button is-info password-button" v-on:click.prevent.self="switchType">{{ buttonText }}</button>
-          </div>
-        </div>
+        <password-input v-on:failed="failed" v-on:success="success"></password-input>
       </div>
     </div>
 
@@ -70,14 +53,14 @@
 </template>
 
 <script>
-import zxcvbn from 'zxcvbn'
 import lightwallet from 'eth-lightwallet'
 import Message from '@/components/Message'
+import PasswordInput from '@/components/PasswordInput'
 
 export default {
   name: 'wallet',
   components: {
-    Message
+    Message, PasswordInput
   },
   data () {
     return {
@@ -89,7 +72,7 @@ export default {
       score: 0,
       keystore: {},
       address: '',
-      randomSeed: '',
+      // randomSeed: '',
       privateKey: '',
       keystoreJson: '',
       keystoreJsonDataLink: '',
@@ -97,21 +80,15 @@ export default {
     }
   },
   methods: {
-    switchType () {
-      if (this.type === 'text') {
-        this.type = 'password'
-        this.buttonText = 'Show'
-      } else {
-        this.type = 'text'
-        this.buttonText = 'Hide'
-      }
+    failed (e) {
+      this.score = e.score
+      this.password = e.password
     },
-    checkPassword () {
-      var result = zxcvbn(this.password)
-
-      this.score = result.score
+    success (e) {
+      this.score = e.score
+      this.password = e.password
     },
-    newAddress (password) {
+    newAddress (password, callback) {
       if (typeof this.keystore.getAddresses !== 'function') {
         return false
       }
@@ -133,9 +110,11 @@ export default {
 
         this.error = false
         this.msg = 'Wallet create successfully!'
+        
+        callback()
       }.bind(this))
     },
-    generate () {
+    generate (callback) {
       if (!this.password) {
         this.error = true
         this.msg = 'Please enter password!'
@@ -145,6 +124,9 @@ export default {
         this.error = true
         this.msg = 'Password is not strong, please change!'
         return
+      }
+      if (!callback || typeof callback !== 'function') {
+        callback = function () {}
       }
 
       // generate random seed
@@ -163,7 +145,7 @@ export default {
         // console.log(keystore)
 
         this.keystore = keystore
-        this.newAddress(this.password)
+        this.newAddress(this.password, callback)
       }.bind(this))
     }
   }

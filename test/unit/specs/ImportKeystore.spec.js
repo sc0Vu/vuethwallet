@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import ImportKeystore from '@/components/ImportKeystore'
+import ImportKeystore from '@/views/ImportKeystore'
 import zxcvbn from 'zxcvbn'
 
 describe('ImportKeystore.vue', () => {

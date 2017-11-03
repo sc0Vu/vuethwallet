@@ -68,7 +68,6 @@
 </template>
 
 <script>
-import zxcvbn from 'zxcvbn'
 import lightwallet from 'eth-lightwallet'
 import Message from '@/components/Message'
 import PasswordInput from '@/components/PasswordInput'

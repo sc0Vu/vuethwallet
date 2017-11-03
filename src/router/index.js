@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Wallet from '@/components/Wallet'
-import WalletSeed from '@/components/WalletSeed'
-import ImportKeystore from '@/components/ImportKeystore'
-import ContractTransaction from '@/components/ContractTransaction'
-import ValueTransaction from '@/components/ValueTransaction'
+import Wallet from '@/views/Wallet'
+import WalletSeed from '@/views/WalletSeed'
+import ImportKeystore from '@/views/ImportKeystore'
+import ContractTransaction from '@/views/ContractTransaction'
+import ValueTransaction from '@/views/ValueTransaction'
 
 Vue.use(Router)
 
