@@ -125,8 +125,8 @@ describe('Wallet.vue', function () {
   // })
 
   it('should create a valid address', function (done) {
-    // 3 mins
-    this.timeout(180000)
+    // 6 mins
+    this.timeout(360000)
 
     const vm = new Constructor({}).$mount()
 

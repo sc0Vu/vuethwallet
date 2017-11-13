@@ -145,8 +145,8 @@ describe('ImportKeystore.vue', function () {
   })
 
   it('should create valid keystore', function (done) {
-    // 3 mins
-    this.timeout(180000)
+    // 6 mins
+    this.timeout(360000)
 
     const vm = new Constructor({}).$mount()
 
