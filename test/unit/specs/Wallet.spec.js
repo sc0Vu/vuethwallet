@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Wallet from '@/views/Wallet'
 import zxcvbn from 'zxcvbn'
 
-describe('Wallet.vue', () => {
+describe('Wallet.vue', function () {
   const weakPassword = zxcvbn('aaaaaaaa')
   const strongPassword = zxcvbn('adskvnjsklfbnskglkljdgnbmvmv')
   const Constructor = Vue.extend(Wallet)
@@ -124,10 +124,14 @@ describe('Wallet.vue', () => {
   //   })
   // })
 
-  it('should create a valid address', (done) => {
+  it('should create a valid address', function (done) {
+    // 3 mins
+    this.timeout(180000)
+
     const vm = new Constructor({}).$mount()
 
     vm.success(strongPassword)
+
     vm.generate(() => {
       Vue.nextTick(() => {
         expect(vm.error)
