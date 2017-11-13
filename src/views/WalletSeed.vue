@@ -34,14 +34,14 @@
 
     <div class="panel-block" v-if="address">
       <div class="container">
-        <div class="columns">
+        <!-- <div class="columns">
           <div class="column is-one-quarter">
             <p>Random Seed</p>
           </div>
           <div class="column is-three-quarter">
             <p>{{ randomSeed }}</p>
           </div>
-        </div>
+        </div> -->
         <div class="columns">
           <div class="column is-one-quarter">
             <p>Address</p>
@@ -64,14 +64,14 @@
     <div class="panel-block has-text-centered">
       <div class="container">
         <button class="button is-primary" v-on:click.prevent.self="generate">Generate Wallet</button>
-        <a class="button is-danger download-button" download="keystore.json" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
+        <a class="button is-danger download-button" v-bind:download="filename" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import lightwallet from 'eth-lightwallet'
+import yoethwallet from 'yoethwallet'
 import Message from '@/components/Message'
 import PasswordInput from '@/components/PasswordInput'
 
@@ -93,7 +93,8 @@ export default {
       randomSeed: '',
       privateKey: '',
       keystoreJson: '',
-      keystoreJsonDataLink: ''
+      keystoreJsonDataLink: '',
+      filename: ''
     }
   },
   computed: {
@@ -104,7 +105,7 @@ export default {
       if (this.randomSeed.split(' ').length !== 12) {
         return false
       }
-      return lightwallet.keystore.isSeedValid(this.randomSeed)
+      return yoethwallet.wallet.validateSeed(this.randomSeed)
     }
   },
   methods: {
@@ -117,29 +118,20 @@ export default {
       this.password = e.password
     },
     newAddress (password, callback) {
-      if (typeof this.keystore.getAddresses !== 'function') {
+      if (typeof this.keystore.getAddress !== 'function') {
         return false
       }
-      this.keystore.keyFromPassword(password, function (err, pwDerivedKey) {
-        if (err) {
-          this.error = true
-          this.msg = 'Something wrong happened!'
-          throw err
-        }
-        this.keystore.generateNewAddress(pwDerivedKey, 1)
 
-        var address = this.keystore.getAddresses()[0]
+      let wallet = this.keystore
 
-        this.address = '0x' + address
-        // console.log(pwDerivedKey, this.keystore.serialize())
-        this.privateKey = this.keystore.exportPrivateKey(address, pwDerivedKey)
-        this.keystoreJson = this.keystore.serialize()
-        this.keystoreJsonDataLink = encodeURI('data:application/json;charset=utf-8,' + this.keystoreJson)
-
-        this.error = false
-        this.msg = 'Wallet create successfully!'
-        callback()
-      }.bind(this))
+      this.error = false
+      this.msg = 'Wallet create successfully!'
+      this.privateKey = wallet.getPrivateKey()
+      this.address = wallet.getAddress()
+      this.keystoreJson = wallet.toJson(this.password)
+      this.keystoreJsonDataLink = encodeURI('data:application/json;charset=utf-8,' + this.keystoreJson)
+      this.filename = `${wallet.getFilename()}.json`
+      callback()
     },
     generate (callback) {
       if (!this.isSeedValid) {
@@ -161,17 +153,12 @@ export default {
         callback = function () {}
       }
 
-      lightwallet.keystore.createVault({password: this.password, seedPhrase: this.randomSeed, hdPathString: "m/44'/60'/0'/0"}, function (err, keystore) {
-        if (err) {
-          this.error = true
-          this.msg = 'Something wrong happened!'
-          throw err
-        }
-        // console.log(keystore)
+      let wallet = yoethwallet.wallet
 
-        this.keystore = keystore
-        this.newAddress(this.password, callback)
-      }.bind(this))
+      wallet.generate(this.randomSeed)
+
+      this.keystore = wallet
+      this.newAddress(this.password, callback)
     }
   }
 }

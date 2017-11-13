@@ -9,7 +9,7 @@ describe('WalletSeed.vue', () => {
   const invalidSeed = 'promote impose guard sunny snap shiver bag bamboo'
   const Constructor = Vue.extend(Wallet)
 
-  it('should have wallet name', () => {
+  it('should have wallet name', function () {
     expect(Wallet.name)
       .to.equal('wallet-seed')
   })
@@ -156,7 +156,10 @@ describe('WalletSeed.vue', () => {
     })
   })
 
-  it('should create a valid address', (done) => {
+  it('should create a valid address', function (done) {
+    // 3 mins
+    this.timeout(180000)
+
     const vm = new Constructor({}).$mount()
 
     vm.success(strongPassword)
