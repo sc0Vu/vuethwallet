@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import lightwallet from 'eth-lightwallet'
+import yoethwallet from 'yoethwallet'
 import Message from '@/components/Message'
 import PasswordInput from '@/components/PasswordInput'
 
@@ -112,26 +112,6 @@ export default {
       this.score = e.score
       this.password = e.password
     },
-    newAddress (password) {
-      if (typeof this.keystore.getAddresses !== 'function') {
-        return false
-      }
-      this.keystore.keyFromPassword(password, function (err, pwDerivedKey) {
-        if (err) {
-          this.error = true
-          this.msg = 'Something wrong happened!'
-          throw err
-        }
-        this.keystore.generateNewAddress(pwDerivedKey, 1)
-
-        var address = this.keystore.getAddresses()[0]
-
-        this.address = '0x' + address
-        // console.log(pwDerivedKey, this.keystore.serialize())
-        this.error = false
-        this.msg = 'Wallet import successfully!'
-      }.bind(this))
-    },
     importWallet () {
       if (!this.isKeystoreJsonValid) {
         this.error = true
@@ -150,11 +130,13 @@ export default {
       }
       this.error = false
 
-      var keystore = lightwallet.keystore.deserialize(this.keystoreJson)
+      let wallet = yoethwallet.wallet.fromJson(this.keystoreJson, this.password)
 
-      if (keystore) {
-        this.keystore = keystore
-        this.newAddress(this.password)
+      if (wallet) {
+        this.keystore = wallet
+        this.address = wallet.getAddress()
+        this.error = false
+        this.msg = 'Wallet import successfully!'
       } else {
         this.error = true
         this.msg = 'Please enter valid keystore json'

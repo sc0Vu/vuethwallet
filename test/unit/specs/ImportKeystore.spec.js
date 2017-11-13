@@ -2,10 +2,10 @@ import Vue from 'vue'
 import ImportKeystore from '@/views/ImportKeystore'
 import zxcvbn from 'zxcvbn'
 
-describe('ImportKeystore.vue', () => {
+describe('ImportKeystore.vue', function () {
   const weakPassword = zxcvbn('aaaaaaaa')
   const strongPassword = zxcvbn('qwfgzxjk123')
-  const validKeystoreJson = `{"encSeed":{"encStr":"2moi9N+h8FOSQtjYcJUU16JvsfUjUuuk4nTF9zstBBdcCFPSIt+qADANHzF3TC/ymZWznv0jJ79/hLKJaflZ6fmpj3r3QXpCanE+e4v0Z+rP13F30c8lvP07bs2cEA/L9vZ9cFfWTUUHASaBHO5DcAr/KCsyAS18O3XfBI5BndSV9wQwpbcK7g==","nonce":"APReXYjlFxwFojOrokJNfMyqEF6jWRm+"},"ksData":{"m/44'/60'/0'/0":{"info":{"curve":"secp256k1","purpose":"sign"},"encHdPathPriv":{"encStr":"3uuXiQafgv2YS+9byKg+A+jd2p9d0Hp0bdYwM0FZEVDpJtS8hfeMzrU4FrLd5XfSWxk9STLYfO25+SkSn8dTdaqRcCM2iBAbTA586gz8w+J7pOtu64UVVWWJZQrP5lhDZ5I1qLbCvii8Ztle88W+j4EcyYLnI6VtYbNw03K25A==","nonce":"nKvLwGxascn0BOhXoyD+HJUmWph95a89"},"hdIndex":1,"encPrivKeys":{"2204c25e6fffe8e07ac5592feebbaf1924288d58":{"key":"ZIwu490fDvgdc6vw1NoJyMCVNFSrXmZkq1ygo48Yfzc53g8Nxl2fUym+Qd6Iig/W","nonce":"IFbXBjljNK155NudIxiw9PIdGkN9+oh7"}},"addresses":["2204c25e6fffe8e07ac5592feebbaf1924288d58"]}},"encHdRootPriv":{"encStr":"KzXzKjM65BpnRaqhcxNUiG/zK5ubj4WP7hYcic1OE6lwAcpkho7p86Q7R5iAQH6B/KH3IDWCa4H1DjdU2N8osAu3RBBxGrroshzV8Im4PoICZd4TYQm4MAbFGKtK6Jsx3mPK8pwtzSr60bPPRWuO5KisM1nPmdbKd67A64TmVA==","nonce":"AUsD7f2cfk+l6sW0y9u+izzGtOuN+Q3h"},"salt":"zIRahLAdoe6GAB5xIYHOx7WGb+/3cnobAP0cywM1YZM=","version":2}`
+  const validKeystoreJson = `{"version":3,"id":"884a5d82-b733-4439-bd77-da963d843533","address":"149a7dff81ecee54652e57e97b0ce2f80763e9fe","crypto":{"ciphertext":"a7b99127257b2d7e9c240190f9476a973a424976342652be7746f6fb51bcdf63","cipherparams":{"iv":"755a411527608ed95d6c0e273a70b303"},"cipher":"aes-128-ctr","kdf":"scrypt","kdfparams":{"dklen":32,"salt":"38fd8be9dc52df2a906129abbc6269408e1c2133996b34e2371099ef6c544a99","n":262144,"r":8,"p":1},"mac":"f6f6ee7d755c841b9b9382563e112a47e172e53da8c36533adacaf80db5c6cac"}}`
   const inValidKeystoreJson = '{version:1}}'
   const Constructor = Vue.extend(ImportKeystore)
 
@@ -53,11 +53,6 @@ describe('ImportKeystore.vue', () => {
       .to.equal('function')
   })
 
-  it('should have method newAddress', () => {
-    expect(typeof ImportKeystore.methods.newAddress)
-      .to.equal('function')
-  })
-
   it('should have method importWallet', () => {
     expect(typeof ImportKeystore.methods.importWallet)
       .to.equal('function')
@@ -93,15 +88,6 @@ describe('ImportKeystore.vue', () => {
         done()
       })
     })
-  })
-
-  it('shouldn\'t create wallet', () => {
-    const vm = new Constructor({}).$mount()
-
-    vm.success(strongPassword)
-
-    expect(vm.newAddress(vm.password))
-      .to.equal(false)
   })
 
   it('should render check out keystore json error contents', (done) => {
@@ -158,7 +144,10 @@ describe('ImportKeystore.vue', () => {
     })
   })
 
-  it('should create valid keystore', (done) => {
+  it('should create valid keystore', function (done) {
+    // 3 mins
+    this.timeout(180000)
+
     const vm = new Constructor({}).$mount()
 
     vm.keystoreJson = validKeystoreJson
@@ -171,9 +160,11 @@ describe('ImportKeystore.vue', () => {
         expect(vm.error)
           .to.equal(false)
         expect(vm.msg)
-          .to.equal('')
-        expect(typeof vm.keystore.getAddresses)
+          .to.equal('Wallet import successfully!')
+        expect(typeof vm.keystore.getAddress)
           .to.equal('function')
+        expect(vm.address)
+          .to.equal('0x149a7dff81ecee54652e57e97b0ce2f80763e9fe')
         done()
       })
     })
