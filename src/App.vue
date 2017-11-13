@@ -25,7 +25,7 @@
         <div class="navbar-start">
           <router-link class="navbar-item" to="/wallet-seed">Seed Wallet</router-link>
           <router-link class="navbar-item" to="/import-keystore">Import Wallet</router-link>
-          <router-link class="navbar-item" to="/contract-transaction">Contract Transaction</router-link>
+          <!-- <router-link class="navbar-item" to="/contract-transaction">Contract Transaction</router-link> -->
           <router-link class="navbar-item" to="/value-transaction">Value Transaction</router-link>
         </div>
       </div>
