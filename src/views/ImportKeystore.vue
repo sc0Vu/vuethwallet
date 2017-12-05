@@ -130,17 +130,21 @@ export default {
       }
       this.error = false
 
-      let wallet = yoethwallet.wallet.fromJson(this.keystoreJson, this.password)
+      yoethwallet.wallet.fromV3String(this.keystoreJson, this.password, (err, keystore) => {
+        if (err) {
+          this.error = true
+          this.msg = 'Please enter valid keystore json'
+          console.warn(err.message)
+          return
+        }
 
-      if (wallet) {
+        let wallet = keystore
+
         this.keystore = wallet
-        this.address = wallet.getAddress()
+        this.address = wallet.getHexAddress(true)
         this.error = false
         this.msg = 'Wallet import successfully!'
-      } else {
-        this.error = true
-        this.msg = 'Please enter valid keystore json'
-      }
+      })
     },
     readKeystoreJsonFile (e) {
       var files = e.target.files
