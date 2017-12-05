@@ -320,7 +320,8 @@ export default {
 
       web3.eth.getTransactionCount(this.address, function (err, nonce) {
         if (err) {
-          return console.warn(err.message)
+          console.warn(err.message)
+          return
         }
         this.nonce = nonce
       }.bind(this))
@@ -343,17 +344,20 @@ export default {
       }
       this.error = false
 
-      let wallet = yoethwallet.wallet.fromJson(this.keystoreJson, this.password)
+      yoethwallet.wallet.fromV3String(this.keystoreJson, this.password, (err, keystore) => {
+        if (err) {
+          this.error = true
+          this.msg = 'Please enter valid keystore json'
+          console.warn(err.message)
+          return
+        }
+        let wallet = keystore
 
-      if (wallet) {
         this.keystore = wallet
-        this.address = wallet.getAddress()
+        this.address = wallet.getHexAddress(true)
         this.error = false
         this.msg = 'Wallet import successfully!'
-      } else {
-        this.error = true
-        this.msg = 'Please enter valid keystore json'
-      }
+      })
     },
     readKeystoreJsonFile (e) {
       var files = e.target.files
@@ -416,7 +420,7 @@ export default {
       let web3 = this.web3
       let valueTx = yoethwallet.tx.valueTx({to: this.toAddress, value: this.val, nonce: this.nonce, gas: this.gas, gasPrice: this.gasPrice, gasLimit: this.gasLimit, chainId: this.chainId})
 
-      valueTx.sign(this.keystore.getPrivateKeyBuffer())
+      valueTx.sign(this.keystore.getPrivateKey())
 
       web3.eth.sendRawTransaction('0x' + valueTx.serialize().toString('hex'), function (err, txId) {
         if (err) {
