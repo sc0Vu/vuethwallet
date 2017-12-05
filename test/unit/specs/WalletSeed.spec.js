@@ -39,6 +39,7 @@ describe('WalletSeed.vue', () => {
     expect(data.privateKey).to.equal('')
     expect(data.keystoreJson).to.equal('')
     expect(data.keystoreJsonDataLink).to.equal('')
+    expect(data.fileName).to.equal('')
   })
 
   it('should have computed isSeedValid', () => {
@@ -178,6 +179,8 @@ describe('WalletSeed.vue', () => {
         expect(vm.keystoreJson.length > 0)
           .to.equal(true)
         expect(vm.keystoreJsonDataLink.length > 0)
+          .to.equal(true)
+        expect(/^UTC\-\-(?:[a-zA-Z0-9\-\.]+)\-\-(?:[a-fA-F0-9]+)\.json$/.test(vm.fileName))
           .to.equal(true)
         expect(vm.$el.querySelector('.button.is-danger.download-button').textContent.trim())
           .to.equal('Download')
