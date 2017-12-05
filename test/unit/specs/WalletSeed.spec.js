@@ -174,6 +174,8 @@ describe('WalletSeed.vue', () => {
           .to.equal('Wallet create successfully!')
         expect(vm.address.length > 0)
           .to.equal(true)
+        expect(/^0x[a-fA-F0-9]{40}$/.test(vm.address))
+          .to.equal(true)
         expect(vm.privateKey.length > 0)
           .to.equal(true)
         expect(vm.keystoreJson.length > 0)

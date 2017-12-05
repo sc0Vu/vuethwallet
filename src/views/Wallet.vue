@@ -99,7 +99,7 @@ export default {
       this.error = false
       this.msg = 'Wallet create successfully!'
       this.privateKey = wallet.getHexPrivateKey()
-      this.address = wallet.getHexAddress()
+      this.address = wallet.getHexAddress(true)
       wallet.toV3String(this.password, {}, (err, v3Json) => {
         if (err) {
           console.warn(err.message)
