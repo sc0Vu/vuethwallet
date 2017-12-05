@@ -46,7 +46,7 @@
     <div class="panel-block has-text-centered">
       <div class="container">
         <button class="button is-primary" v-on:click.prevent.self="generate">Generate Wallet</button>
-        <a class="button is-danger download-button" v-bind:download="filename" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
+        <a class="button is-danger download-button" v-bind:download="fileName" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
       </div>
     </div>
   </div>
@@ -77,7 +77,7 @@ export default {
       keystoreJson: '',
       keystoreJsonDataLink: '',
       hdPathString: 'm/44\'/60\'/0\'/0',
-      filename: ''
+      fileName: ''
     }
   },
   methods: {
@@ -90,7 +90,7 @@ export default {
       this.password = e.password
     },
     newAddress (password, callback) {
-      if (typeof this.keystore.getAddress !== 'function') {
+      if (typeof this.keystore.getHexAddress !== 'function') {
         return false
       }
 
@@ -98,12 +98,18 @@ export default {
 
       this.error = false
       this.msg = 'Wallet create successfully!'
-      this.privateKey = wallet.getPrivateKey()
-      this.address = wallet.getAddress()
-      this.keystoreJson = wallet.toJson(this.password)
-      this.keystoreJsonDataLink = encodeURI('data:application/json;charset=utf-8,' + this.keystoreJson)
-      this.filename = `${wallet.getFilename()}.json`
-      callback()
+      this.privateKey = wallet.getHexPrivateKey()
+      this.address = wallet.getHexAddress()
+      wallet.toV3String(this.password, {}, (err, v3Json) => {
+        if (err) {
+          console.warn(err.message)
+          return
+        }
+        this.keystoreJson = v3Json
+        this.keystoreJsonDataLink = encodeURI('data:application/json;charset=utf-8,' + this.keystoreJson)
+        this.fileName = `${wallet.getV3Filename()}.json`
+        callback()
+      })
     },
     generate (callback) {
       if (!this.password) {
@@ -122,10 +128,14 @@ export default {
 
       let wallet = yoethwallet.wallet
 
-      wallet.generate()
-
-      this.keystore = wallet
-      this.newAddress(this.password, callback)
+      wallet.generate('', this.hdPathString, (err, keystore) => {
+        if (err) {
+          console.warn(err.message)
+          return
+        }
+        this.keystore = keystore
+        this.newAddress(this.password, callback)
+      })
     }
   }
 }
