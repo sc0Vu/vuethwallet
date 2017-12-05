@@ -14,13 +14,14 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
   "dependencies": {
+    "async": "^2.6.0",
     "bip39": "^2.4.0",
-    "yoethwallet": "^0.1.2",
     "koa": "^2.3.0",
     "koa-static": "^4.0.1",
     "vue": "^2.2.6",
     "vue-router": "^2.3.1",
     "web3": "^0.19.0",
+    "yoethwallet": "^0.1.2",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {

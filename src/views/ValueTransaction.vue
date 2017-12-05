@@ -242,6 +242,7 @@ import Message from '@/components/Message'
 import PasswordInput from '@/components/PasswordInput'
 import Web3 from 'web3'
 import config from '@/config'
+import confirmedTransaction from '@/util/confirmedTransaction'
 
 export default {
   name: 'value-transaction',
@@ -418,7 +419,7 @@ export default {
       }
 
       let web3 = this.web3
-      let valueTx = yoethwallet.tx.valueTx({to: this.toAddress, value: this.val, nonce: this.nonce, gas: this.gas, gasPrice: this.gasPrice, gasLimit: this.gasLimit, chainId: this.chainId})
+      let valueTx = yoethwallet.tx.valueTx({from: this.address, to: this.toAddress, value: this.val, nonce: this.nonce, gas: this.gas, gasPrice: this.gasPrice, gasLimit: this.gasLimit, chainId: this.chainId})
 
       valueTx.sign(this.keystore.getPrivateKey())
 
@@ -427,6 +428,16 @@ export default {
           throw err
         }
         this.result = txId
+
+        confirmedTransaction(web3, txId, function (err, tx) {
+          if (err) {
+            this.error = true
+            this.msg = 'Please send transaction again'
+            console.warn(err.message)
+            return
+          }
+          console.log('Transaction confirmed')
+        })
       }.bind(this))
     },
     resetWeb3 () {
