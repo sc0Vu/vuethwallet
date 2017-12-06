@@ -9,7 +9,7 @@ describe('WalletSeed.vue', () => {
   const invalidSeed = 'promote impose guard sunny snap shiver bag bamboo'
   const Constructor = Vue.extend(Wallet)
 
-  it('should have wallet name', () => {
+  it('should have wallet name', function () {
     expect(Wallet.name)
       .to.equal('wallet-seed')
   })
@@ -24,8 +24,8 @@ describe('WalletSeed.vue', () => {
       .to.equal('object')
   })
 
-  it('shold have data', () => {
-    var data = Wallet.data()
+  it('shold have default data', () => {
+    const data = Wallet.data()
 
     expect(data.msg).to.equal('')
     expect(data.error).to.equal(false)
@@ -39,6 +39,7 @@ describe('WalletSeed.vue', () => {
     expect(data.privateKey).to.equal('')
     expect(data.keystoreJson).to.equal('')
     expect(data.keystoreJsonDataLink).to.equal('')
+    expect(data.fileName).to.equal('')
   })
 
   it('should have computed isSeedValid', () => {
@@ -156,7 +157,10 @@ describe('WalletSeed.vue', () => {
     })
   })
 
-  it('should create a valid address', (done) => {
+  it('should create a valid address', function (done) {
+    // 6 mins
+    this.timeout(360000)
+
     const vm = new Constructor({}).$mount()
 
     vm.success(strongPassword)
@@ -170,11 +174,15 @@ describe('WalletSeed.vue', () => {
           .to.equal('Wallet create successfully!')
         expect(vm.address.length > 0)
           .to.equal(true)
+        expect(/^0x[a-fA-F0-9]{40}$/.test(vm.address))
+          .to.equal(true)
         expect(vm.privateKey.length > 0)
           .to.equal(true)
         expect(vm.keystoreJson.length > 0)
           .to.equal(true)
         expect(vm.keystoreJsonDataLink.length > 0)
+          .to.equal(true)
+        expect(/^UTC\-\-(?:[a-zA-Z0-9\-\.]+)\-\-(?:[a-fA-F0-9]+)\.json$/.test(vm.fileName))
           .to.equal(true)
         expect(vm.$el.querySelector('.button.is-danger.download-button').textContent.trim())
           .to.equal('Download')

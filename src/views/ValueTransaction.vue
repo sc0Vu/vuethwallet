@@ -10,43 +10,12 @@
 
     <div class="panel-block">
       <div class="container">
-        <div class="columns">
-          <div class="column is-one-quarter">
-            <label class="label" for="pass">Password</label>
-          </div>
-        
-          <div class="column is-half">
-            <div class="control">
-              <input id="pass" class="input" type="text" v-model="password" placeholder="Password" v-on:change.prevent.self="checkPassword" v-if="type === 'text'" v-bind:class="{'is-danger': ((score < 3 && password) || error), 'is-success': (score >= 3 && password)}">
-              <input id="pass" class="input" type="password" v-model="password" placeholder="Password" v-on:change.prevent.self="checkPassword" v-if="type === 'password'" v-bind:class="{'is-danger': ((score < 3 && password) || error), 'is-success': (score >= 3 && password)}">
-              <p class="help is-danger" v-if="score < 3 && password">Weak Password</p>
-              <p class="help is-success" v-if="score >= 3 && password">Strong Password</p>
-            </div>
-          </div>
-
-          <div class="column is-one-quarter">
-            <button class="button is-info" v-on:click.prevent.self="switchType">{{ buttonText }}</button>
-          </div>
-        </div>
+        <password-input v-on:failed="failed" v-on:success="success"></password-input>
       </div>
     </div>
     
     <div class="panel-block">
       <div class="container">
-        <!-- <div class="columns">
-          <div class="column is-one-quarter">
-            <label class="label" for="text-seed">Keystore JSON(Enter text)</label>
-          </div>
-        
-          <div class="column is-third-quarter">
-            <div class="control">
-              <input id="text-seed" class="input" type="text" v-model="keystoreJson" placeholder="Keystore JSON" v-bind:class="{'is-danger': ((!isKeystoreJsonValid && keystoreJson) || error), 'is-success': isKeystoreJsonValid}">
-              <p class="help is-danger" v-if="!isKeystoreJsonValid && keystoreJson">Keystore JSON isn't valid</p>
-              <p class="help is-success" v-if="isKeystoreJsonValid">Keystore JSON is valid</p>
-            </div>
-          </div>
-        </div> -->
-
         <div class="columns">
           <div class="column is-one-quarter">
             <label class="label" for="file-seed">Keystore JSON(Choose file)</label>
@@ -55,8 +24,8 @@
           <div class="column is-third-quarter">
             <div class="control">
               <input id="file-seed" class="input" type="file" v-on:change="readKeystoreJsonFile" placeholder="Keystore JSON" v-bind:class="{'is-danger': (!isKeystoreJsonValid && keystoreJson), 'is-success': isKeystoreJsonValid}">
-              <p class="help is-danger" v-if="!isKeystoreJsonValid && keystoreJson">Keystore JSON isn't valid</p>
-              <p class="help is-success" v-if="isKeystoreJsonValid">Keystore JSON is valid</p>
+              <p class="help is-danger file-help" v-if="!isKeystoreJsonValid && keystoreJson">Keystore JSON isn't valid</p>
+              <p class="help is-success file-help" v-if="isKeystoreJsonValid">Keystore JSON is valid</p>
             </div>
           </div>
         </div>
@@ -94,9 +63,9 @@
 
             <div class="column is-one-quarter">
               <div class="select is-info">
-                <select v-model="host">
+                <select v-on:change="selectHost">
                   <option value="">------</option>
-                  <option v-for="(host, key) in hosts" v-bind:value="host.rpcUri">
+                  <option v-for="(host, key) in hosts" v-bind:value="key">
                     {{ `${key} ${(host.test === true) ? 'test network' : 'network'}` }}
                   </option>
                 </select>
@@ -192,6 +161,40 @@
         </div>
       </div>
 
+      <div class="panel-block">
+        <div class="container">
+          <div class="columns">
+            <div class="column is-one-quarter">
+              <label class="label" for="nonce">Nonce</label>
+            </div>
+          
+            <div class="column is-third-quarter">
+              <div class="control">
+                <input id="nonce" class="input" type="text" v-model="nonce" placeholder="Nonce" v-bind:class="{'is-success': nonce}">
+                <p class="help is-success" v-if="nonce">Nonce is valid</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <div class="container">
+          <div class="columns">
+            <div class="column is-one-quarter">
+              <label class="label" for="chainid">Chain Id</label>
+            </div>
+          
+            <div class="column is-third-quarter">
+              <div class="control">
+                <input id="chainid" class="input" type="text" v-model="chainId" placeholder="Chain Id" v-bind:class="{'is-success': chainId}">
+                <p class="help is-success" v-if="chainId">Chain id is valid</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="panel-block" v-if="result">
         <div class="container">
           <div class="columns">
@@ -212,7 +215,9 @@
     <div class="panel-block has-text-centered">
       <div class="container">
         <button class="button is-primary" v-on:click.prevent.self="importWallet">Import Wallet</button>
-        <button class="button is-info" v-on:click.prevent.self="valueTransaction" v-if="address">Value Transaction</button>
+        <button class="button is-info" v-on:click.prevent.self="signTransaction" v-if="address && !signedTransaction && !send">Sign Transaction</button>
+        <button class="button is-warning" v-on:click.prevent.self="sendTransaction" v-if="address && signedTransaction && !send">Send Transaction</button>
+        <button class="button is-danger" v-if="send">Transaction sending, please wait until confirm</button>
       </div>
     </div>
 
@@ -220,16 +225,17 @@
 </template>
 
 <script>
-import zxcvbn from 'zxcvbn'
-import lightwallet from 'eth-lightwallet'
+import yoethwallet from 'yoethwallet'
 import Message from '@/components/Message'
+import PasswordInput from '@/components/PasswordInput'
 import Web3 from 'web3'
 import config from '@/config'
+import confirmedTransaction from '@/util/confirmedTransaction'
 
 export default {
   name: 'value-transaction',
   components: {
-    Message
+    Message, PasswordInput
   },
   data () {
     return {
@@ -237,7 +243,7 @@ export default {
       error: false,
       password: '',
       type: 'text',
-      buttonText: 'hidden',
+      buttonText: 'Hide',
       score: 0,
       keystore: {},
       address: '',
@@ -248,10 +254,13 @@ export default {
       gasPrice: '',
       gasLimit: '',
       gas: '',
-      pwDerivedKey: [],
       result: '',
       web3: {},
-      hosts: {}
+      hosts: {},
+      nonce: '',
+      chainId: '',
+      signedTransaction: '',
+      send: false
     }
   },
   created () {
@@ -283,36 +292,28 @@ export default {
     }
   },
   methods: {
-    switchType () {
-      if (this.type === 'text') {
-        this.type = 'password'
-        this.buttonText = 'Show'
-      } else {
-        this.type = 'text'
-        this.buttonText = 'Hide'
+    failed (e) {
+      this.score = e.score
+      this.password = e.password
+    },
+    success (e) {
+      this.score = e.score
+      this.password = e.password
+    },
+    getNonce () {
+      if (!this.web3.eth) {
+        this.error = true
+        this.msg = 'Please check out host!'
+        return
       }
-    },
-    checkPassword () {
-      var result = zxcvbn(this.password)
+      let web3 = this.web3
 
-      this.score = result.score
-    },
-    newAddress (password) {
-      this.keystore.keyFromPassword(password, function (err, pwDerivedKey) {
+      web3.eth.getTransactionCount(this.address, function (err, nonce) {
         if (err) {
-          this.error = true
-          this.msg = 'Something wrong happened!'
-          throw err
+          console.warn(err.message)
+          return
         }
-        this.pwDerivedKey = pwDerivedKey
-        this.keystore.generateNewAddress(pwDerivedKey, 1)
-
-        var address = this.keystore.getAddresses()[0]
-
-        this.address = '0x' + address
-        // console.log(pwDerivedKey, this.keystore.serialize())
-        this.error = false
-        this.msg = 'Wallet import successfully!'
+        this.nonce = nonce
       }.bind(this))
     },
     importWallet () {
@@ -326,21 +327,27 @@ export default {
         this.msg = 'Please enter password!'
         return
       }
-      // if (this.score < 3) {
-      //   this.error = true
-      //   this.msg = 'Password is not strong, please change!'
-      //   return
-      // }
-
-      var keystore = lightwallet.keystore.deserialize(this.keystoreJson)
-
-      if (keystore) {
-        this.keystore = keystore
-        this.newAddress(this.password)
-      } else {
+      if (this.score < 3) {
         this.error = true
-        this.msg = 'Please enter valid keystore json'
+        this.msg = 'Password is not strong, please change!'
+        return
       }
+      this.error = false
+
+      yoethwallet.wallet.fromV3String(this.keystoreJson, this.password, (err, keystore) => {
+        if (err) {
+          this.error = true
+          this.msg = 'Please enter valid keystore json'
+          console.warn(err.message)
+          return
+        }
+        let wallet = keystore
+
+        this.keystore = wallet
+        this.address = wallet.getHexAddress(true)
+        this.error = false
+        this.msg = 'Wallet import successfully!'
+      })
     },
     readKeystoreJsonFile (e) {
       var files = e.target.files
@@ -369,13 +376,26 @@ export default {
       reader.readAsText(files[0])
     },
     createWeb3 () {
-      var web3 = new Web3()
-      var provider = new web3.providers.HttpProvider(this.host)
+      let web3 = new Web3()
+      let provider = new Web3.providers.HttpProvider(this.host)
+
+      if (!provider.isConnected()) {
+        throw new Error('Please check the host or your interenet!')
+      }
 
       web3.setProvider(provider)
       return web3
     },
-    valueTransaction () {
+    newProvider () {
+      let provider = new Web3.providers.HttpProvider(this.host)
+
+      if (!provider.isConnected()) {
+        throw new Error('Please check the host or your interenet!')
+      }
+
+      this.web3.setProvider(provider)
+    },
+    signTransaction () {
       if (!this.host) {
         this.error = true
         this.msg = 'Please enter host'
@@ -387,34 +407,76 @@ export default {
         return
       }
 
-      var web3 = this.web3
+      let valueTx = yoethwallet.tx.valueTx({from: this.address, to: this.toAddress, value: this.val, nonce: this.nonce, gas: this.gas, gasPrice: this.gasPrice, gasLimit: this.gasLimit, chainId: this.chainId})
 
-      web3.eth.getTransactionCount(this.address, function (err, nonce) {
+      valueTx.sign(this.keystore.getPrivateKey())
+
+      this.signedTransaction = '0x' + valueTx.serialize().toString('hex')
+    },
+    sendTransaction () {
+      if (!this.host) {
+        this.error = true
+        this.msg = 'Please enter host'
+        return
+      }
+      if (!this.signedTransaction) {
+        this.error = true
+        this.msg = 'Please sign transaction first'
+        return
+      }
+      this.send = true
+
+      const web3 = this.web3
+
+      web3.eth.sendRawTransaction(this.signedTransaction, function (err, txId) {
         if (err) {
-          throw err
+          this.send = false
+          this.signedTransaction = ''
+          this.error = true
+          this.msg = 'Please sign transaction again'
+          console.warn(err.message)
+          return
         }
-        var valueTx = lightwallet.txutils.valueTx({to: this.toAddress, value: this.val, nonce: nonce, gas: this.gas, gasPrice: this.gasPrice, gasLimit: this.gasLimit})
-        var signedTx = lightwallet.signing.signTx(this.keystore, this.pwDerivedKey, valueTx, this.address)
+        this.result = txId
 
-        web3.eth.sendRawTransaction('0x' + signedTx.toString('hex'), function (err, txId) {
+        confirmedTransaction(web3, txId, function (err, tx) {
+          this.send = false
+          this.signedTransaction = ''
+
           if (err) {
-            throw err
+            this.error = true
+            this.msg = 'Please send transaction again'
+            console.warn(err.message)
+            return
           }
-          this.result = txId
-        }.bind(this))
+          console.log('Transaction confirmed')
+        })
       }.bind(this))
     },
     resetWeb3 () {
       if (this.web3.eth) {
         this.web3 = {}
       }
+    },
+    selectHost (e) {
+      let host = config.hosts[e.target.value]
+
+      this.host = host.rpcUri
+      this.chainId = host.chainId
     }
   },
   watch: {
     host (val, oval) {
       if (this.isHostValid) {
-        if (val !== oval) {
-          this.web3 = this.createWeb3()
+        try {
+          if (val !== oval && !this.web3.eth) {
+            this.web3 = this.createWeb3()
+          } else {
+            this.newProvider()
+          }
+          this.getNonce()
+        } catch (err) {
+          console.warn(err.message)
         }
       }
     }

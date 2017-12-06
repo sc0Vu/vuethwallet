@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import lightwallet from 'eth-lightwallet'
+import yoethwallet from 'yoethwallet'
 import Message from '@/components/Message'
 import PasswordInput from '@/components/PasswordInput'
 
@@ -112,26 +112,6 @@ export default {
       this.score = e.score
       this.password = e.password
     },
-    newAddress (password) {
-      if (typeof this.keystore.getAddresses !== 'function') {
-        return false
-      }
-      this.keystore.keyFromPassword(password, function (err, pwDerivedKey) {
-        if (err) {
-          this.error = true
-          this.msg = 'Something wrong happened!'
-          throw err
-        }
-        this.keystore.generateNewAddress(pwDerivedKey, 1)
-
-        var address = this.keystore.getAddresses()[0]
-
-        this.address = '0x' + address
-        // console.log(pwDerivedKey, this.keystore.serialize())
-        this.error = false
-        this.msg = 'Wallet import successfully!'
-      }.bind(this))
-    },
     importWallet () {
       if (!this.isKeystoreJsonValid) {
         this.error = true
@@ -150,15 +130,21 @@ export default {
       }
       this.error = false
 
-      var keystore = lightwallet.keystore.deserialize(this.keystoreJson)
+      yoethwallet.wallet.fromV3String(this.keystoreJson, this.password, (err, keystore) => {
+        if (err) {
+          this.error = true
+          this.msg = 'Please enter valid keystore json'
+          console.warn(err.message)
+          return
+        }
 
-      if (keystore) {
-        this.keystore = keystore
-        this.newAddress(this.password)
-      } else {
-        this.error = true
-        this.msg = 'Please enter valid keystore json'
-      }
+        let wallet = keystore
+
+        this.keystore = wallet
+        this.address = wallet.getHexAddress(true)
+        this.error = false
+        this.msg = 'Wallet import successfully!'
+      })
     },
     readKeystoreJsonFile (e) {
       var files = e.target.files

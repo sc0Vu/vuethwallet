@@ -3,8 +3,8 @@ import Router from 'vue-router'
 import Wallet from '@/views/Wallet'
 import WalletSeed from '@/views/WalletSeed'
 import ImportKeystore from '@/views/ImportKeystore'
-import ContractTransaction from '@/views/ContractTransaction'
 import ValueTransaction from '@/views/ValueTransaction'
+// import ContractTransaction from '@/views/ContractTransaction'
 
 Vue.use(Router)
 
@@ -34,13 +34,6 @@ export default new Router({
         title: 'Import Wallet'
       }
     }, {
-      path: '/contract-transaction',
-      name: 'contractTransaction',
-      component: ContractTransaction,
-      meta: {
-        title: 'Contract Transaction'
-      }
-    }, {
       path: '/value-transaction',
       name: 'valueTransaction',
       component: ValueTransaction,
@@ -48,5 +41,13 @@ export default new Router({
         title: 'Value Transaction'
       }
     }
+    // {
+    //   path: '/contract-transaction',
+    //   name: 'contractTransaction',
+    //   component: ContractTransaction,
+    //   meta: {
+    //     title: 'Contract Transaction'
+    //   }
+    // }
   ]
 })

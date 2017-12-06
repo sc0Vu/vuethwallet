@@ -8,6 +8,7 @@ var webpackConfig = require('../../build/webpack.test.conf')
 module.exports = function (config) {
   config.set({
     browsers: ['Chrome'],
+    browserNoActivityTimeout: 360000, // 6 mins
     frameworks: ['mocha', 'sinon-chai'],
     reporters: ['spec', 'coverage'],
     files: ['./index.js'],
