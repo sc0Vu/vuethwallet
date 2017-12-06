@@ -34,14 +34,6 @@
 
     <div class="panel-block" v-if="address">
       <div class="container">
-        <!-- <div class="columns">
-          <div class="column is-one-quarter">
-            <p>Random Seed</p>
-          </div>
-          <div class="column is-three-quarter">
-            <p>{{ randomSeed }}</p>
-          </div>
-        </div> -->
         <div class="columns">
           <div class="column is-one-quarter">
             <p>Address</p>

@@ -11,8 +11,8 @@ describe('PasswordInput.vue', () => {
       .to.equal('password-input')
   })
 
-  it('should have data', () => {
-    var data = PasswordInput.data()
+  it('should have default data', () => {
+    const data = PasswordInput.data()
 
     expect(data.error).to.equal(false)
     expect(data.password).to.equal('')

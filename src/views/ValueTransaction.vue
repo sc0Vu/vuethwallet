@@ -16,20 +16,6 @@
     
     <div class="panel-block">
       <div class="container">
-        <!-- <div class="columns">
-          <div class="column is-one-quarter">
-            <label class="label" for="text-seed">Keystore JSON(Enter text)</label>
-          </div>
-        
-          <div class="column is-third-quarter">
-            <div class="control">
-              <input id="text-seed" class="input" type="text" v-model="keystoreJson" placeholder="Keystore JSON" v-bind:class="{'is-danger': ((!isKeystoreJsonValid && keystoreJson) || error), 'is-success': isKeystoreJsonValid}">
-              <p class="help is-danger" v-if="!isKeystoreJsonValid && keystoreJson">Keystore JSON isn't valid</p>
-              <p class="help is-success" v-if="isKeystoreJsonValid">Keystore JSON is valid</p>
-            </div>
-          </div>
-        </div> -->
-
         <div class="columns">
           <div class="column is-one-quarter">
             <label class="label" for="file-seed">Keystore JSON(Choose file)</label>
@@ -38,8 +24,8 @@
           <div class="column is-third-quarter">
             <div class="control">
               <input id="file-seed" class="input" type="file" v-on:change="readKeystoreJsonFile" placeholder="Keystore JSON" v-bind:class="{'is-danger': (!isKeystoreJsonValid && keystoreJson), 'is-success': isKeystoreJsonValid}">
-              <p class="help is-danger" v-if="!isKeystoreJsonValid && keystoreJson">Keystore JSON isn't valid</p>
-              <p class="help is-success" v-if="isKeystoreJsonValid">Keystore JSON is valid</p>
+              <p class="help is-danger file-help" v-if="!isKeystoreJsonValid && keystoreJson">Keystore JSON isn't valid</p>
+              <p class="help is-success file-help" v-if="isKeystoreJsonValid">Keystore JSON is valid</p>
             </div>
           </div>
         </div>
@@ -229,7 +215,9 @@
     <div class="panel-block has-text-centered">
       <div class="container">
         <button class="button is-primary" v-on:click.prevent.self="importWallet">Import Wallet</button>
-        <button class="button is-info" v-on:click.prevent.self="valueTransaction" v-if="address">Value Transaction</button>
+        <button class="button is-info" v-on:click.prevent.self="signTransaction" v-if="address && !signedTransaction && !send">Sign Transaction</button>
+        <button class="button is-warning" v-on:click.prevent.self="sendTransaction" v-if="address && signedTransaction && !send">Send Transaction</button>
+        <button class="button is-danger" v-if="send">Transaction sending, please wait until confirm</button>
       </div>
     </div>
 
@@ -255,7 +243,7 @@ export default {
       error: false,
       password: '',
       type: 'text',
-      buttonText: 'hidden',
+      buttonText: 'Hide',
       score: 0,
       keystore: {},
       address: '',
@@ -266,12 +254,13 @@ export default {
       gasPrice: '',
       gasLimit: '',
       gas: '',
-      pwDerivedKey: [],
       result: '',
       web3: {},
       hosts: {},
       nonce: '',
-      chainId: ''
+      chainId: '',
+      signedTransaction: '',
+      send: false
     }
   },
   created () {
@@ -406,7 +395,7 @@ export default {
 
       this.web3.setProvider(provider)
     },
-    valueTransaction () {
+    signTransaction () {
       if (!this.host) {
         this.error = true
         this.msg = 'Please enter host'
@@ -418,18 +407,42 @@ export default {
         return
       }
 
-      let web3 = this.web3
       let valueTx = yoethwallet.tx.valueTx({from: this.address, to: this.toAddress, value: this.val, nonce: this.nonce, gas: this.gas, gasPrice: this.gasPrice, gasLimit: this.gasLimit, chainId: this.chainId})
 
       valueTx.sign(this.keystore.getPrivateKey())
 
-      web3.eth.sendRawTransaction('0x' + valueTx.serialize().toString('hex'), function (err, txId) {
+      this.signedTransaction = '0x' + valueTx.serialize().toString('hex')
+    },
+    sendTransaction () {
+      if (!this.host) {
+        this.error = true
+        this.msg = 'Please enter host'
+        return
+      }
+      if (!this.signedTransaction) {
+        this.error = true
+        this.msg = 'Please sign transaction first'
+        return
+      }
+      this.send = true
+
+      const web3 = this.web3
+
+      web3.eth.sendRawTransaction(this.signedTransaction, function (err, txId) {
         if (err) {
-          throw err
+          this.send = false
+          this.signedTransaction = ''
+          this.error = true
+          this.msg = 'Please sign transaction again'
+          console.warn(err.message)
+          return
         }
         this.result = txId
 
         confirmedTransaction(web3, txId, function (err, tx) {
+          this.send = false
+          this.signedTransaction = ''
+
           if (err) {
             this.error = true
             this.msg = 'Please send transaction again'

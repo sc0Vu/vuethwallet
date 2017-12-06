@@ -22,8 +22,8 @@ describe('Wallet.vue', function () {
       .to.equal('object')
   })
 
-  it('shold have data', () => {
-    var data = Wallet.data()
+  it('shold have default data', () => {
+    const data = Wallet.data()
 
     expect(data.msg).to.equal('')
     expect(data.error).to.equal(false)
