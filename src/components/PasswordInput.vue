@@ -11,9 +11,11 @@
       <p class="help is-success password-help" v-if="isPasswordValid">
         <span class="password-help-msg">Strong Password</span>
       </p>
-      <p class="help is-danger password-help" v-else-if="!emptyPassword">
+      <p class="help is-danger password-help" v-else-if="!emptyPassword && hasFeedback">
       	<span class="password-help-msg">Weak Password</span><br>
-      	<span class="password-help-suggestions" v-if="feedback.suggestions">Suggestions: {{ feedback.suggestions.join(',') }}</span><br>
+      	<ul class="password-help-suggestions">Suggestions:
+          <li class="password-help-suggestions" v-bind:key="i" v-for="(suggestion, i) in feedback.suggestions">{{ suggestion }}</li>
+        </ul>
       	<span class="password-help-warning" v-if="feedback.warning">Warning: {{ feedback.warning }}</span>
       </p>
     </div>
@@ -46,6 +48,9 @@ export default {
     },
     emptyPassword () {
       return this.password === '' || this.password === null || this.password === undefined
+    },
+    hasFeedback () {
+      return this.feedback.suggestions || this.feedback.warning
     }
   },
   methods: {

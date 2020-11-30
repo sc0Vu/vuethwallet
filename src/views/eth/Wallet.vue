@@ -1,12 +1,6 @@
 <template>
   <div class="panel">
-    <h2 class="panel-heading">Create Wallet App</h2>
-
-    <div class="panel-block" v-if="msg">
-      <div class="container">
-        <message v-bind:message="msg" v-bind:error="error" v-on:update:msg="val => msg = val"></message>
-      </div>
-    </div>
+    <h2 class="panel-heading">Create Wallet</h2>
 
     <div class="panel-block">
       <div class="container">
@@ -45,7 +39,7 @@
 
     <div class="panel-block has-text-centered">
       <div class="container">
-        <button class="button is-primary" v-on:click.prevent.self="generate">Generate Wallet</button>
+        <button class="button is-primary" v-bind:disabled="working" v-on:click.prevent.self="generate">Generate Wallet</button>
         <a class="button is-danger download-button" v-bind:download="fileName" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
       </div>
     </div>
@@ -56,6 +50,7 @@
 import yoethwallet from 'yoethwallet'
 import Message from '@/components/Message'
 import PasswordInput from '@/components/PasswordInput'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'wallet',
@@ -64,8 +59,6 @@ export default {
   },
   data () {
     return {
-      msg: '',
-      error: false,
       password: '',
       type: 'text',
       buttonText: 'Hide',
@@ -77,7 +70,8 @@ export default {
       keystoreJson: '',
       keystoreJsonDataLink: '',
       hdPathString: 'm/44\'/60\'/0\'/0',
-      fileName: ''
+      fileName: '',
+      working: false
     }
   },
   methods: {
@@ -95,9 +89,7 @@ export default {
       }
 
       let wallet = this.keystore
-
-      this.error = false
-      this.msg = 'Wallet create successfully!'
+      this.notify({ text: 'Wallet create successfully!', class: 'is-info' })
       this.privateKey = wallet.getHexPrivateKey()
       this.address = wallet.getHexAddress(true)
       wallet.toV3String(this.password, {}, (err, v3Json) => {
@@ -113,30 +105,36 @@ export default {
     },
     generate (callback) {
       if (!this.password) {
-        this.error = true
-        this.msg = 'Please enter password!'
+        this.notify({ text: 'Please enter password!', class: 'is-danger' })
         return
       }
       if (this.score < 3) {
-        this.error = true
-        this.msg = 'Password is not strong, please change!'
+        this.notify({ text: 'Password is not strong, please change!', class: 'is-danger' })
         return
       }
       if (!callback || typeof callback !== 'function') {
-        callback = function () {}
+        callback = function () {
+          this.working = false
+        }.bind(this)
       }
+      this.working = true
 
-      let wallet = yoethwallet.wallet
+      window.setTimeout(function () {
+        let wallet = yoethwallet.wallet
 
-      wallet.generate('', this.hdPathString, (err, keystore) => {
-        if (err) {
-          console.warn(err.message)
-          return
-        }
-        this.keystore = keystore
-        this.newAddress(this.password, callback)
-      })
-    }
+        wallet.generate('', this.hdPathString, (err, keystore) => {
+          if (err) {
+            console.warn(err.message)
+            return
+          }
+          this.keystore = keystore
+          this.newAddress(this.password, callback)
+        })
+      }.bind(this), 100)
+    },
+    ...mapActions([
+      'notify'
+    ])
   }
 }
 </script>
