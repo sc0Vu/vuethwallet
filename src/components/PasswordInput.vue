@@ -6,17 +6,17 @@
 
   <div class="column is-half">
     <div class="control">
-      <input id="pass" class="input" type="text" v-model="password" placeholder="Password (No space)" v-on:change.prevent.self="checkPassword" v-if="type === 'text'" v-bind:class="{'is-danger': ((!isPasswordValid && !emptyPassword) || error), 'is-success': (isPasswordValid)}">
-      <input id="pass" class="input" type="password" v-model="password" placeholder="Password" v-on:change.prevent.self="checkPassword" v-if="type === 'password'" v-bind:class="{'is-danger': ((!isPasswordValid && !emptyPassword) || error), 'is-success': (isPasswordValid)}">
+      <input id="pass" class="input" type="text" v-model="password" placeholder="Password (No space)" v-on:blur.prevent.self="checkPassword" v-if="type === 'text'" v-bind:class="{'is-danger': ((!isPasswordValid && !emptyPassword) || error), 'is-success': (isPasswordValid)}">
+      <input id="pass" class="input" type="password" v-model="password" placeholder="Password" v-on:blur.prevent.self="checkPassword" v-if="type === 'password'" v-bind:class="{'is-danger': ((!isPasswordValid && !emptyPassword) || error), 'is-success': (isPasswordValid)}">
       <p class="help is-success password-help" v-if="isPasswordValid">
         <span class="password-help-msg">Strong Password</span>
       </p>
       <p class="help is-danger password-help" v-else-if="!emptyPassword && hasFeedback">
       	<span class="password-help-msg">Weak Password</span><br>
-      	<ul class="password-help-suggestions">Suggestions:
+      	<ul class="password-help-suggestions" v-show="feedback.suggestions.length > 0">Suggestions:
           <li class="password-help-suggestions" v-bind:key="i" v-for="(suggestion, i) in feedback.suggestions">{{ suggestion }}</li>
         </ul>
-      	<span class="password-help-warning" v-if="feedback.warning">Warning: {{ feedback.warning }}</span>
+      	<span class="password-help-warning" v-show="feedback.warning">Warning: {{ feedback.warning }}</span>
       </p>
     </div>
   </div>
@@ -71,6 +71,14 @@ export default {
       this.feedback = result.feedback
 
       if (score < 3) {
+        this.$emit('failed', result)
+      } else if (/(?:[\s]+)/.test(this.password)) {
+        result = {
+          feedback: {
+            suggestions: [ 'Avoid space in password.' ]
+          }
+        }
+        this.feedback = result.feedback
         this.$emit('failed', result)
       } else {
         this.$emit('success', result)

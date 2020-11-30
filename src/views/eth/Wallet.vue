@@ -105,7 +105,7 @@ export default {
     },
     generate (callback) {
       if (!this.password) {
-        this.notify({ text: 'Please enter password!', class: 'is-danger' })
+        this.notify({ text: 'Please enter valid password!', class: 'is-danger' })
         return
       }
       if (this.score < 3) {
