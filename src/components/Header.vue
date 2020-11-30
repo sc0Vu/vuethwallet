@@ -12,10 +12,17 @@
 
     <div class="navbar-menu" v-bind:class="{'is-active': isMenuActive}">
       <div class="navbar-start">
-        <router-link class="navbar-item" to="/wallet-seed">Seed Wallet</router-link>
-        <router-link class="navbar-item" to="/import-keystore">Import Wallet</router-link>
-        <!-- <router-link class="navbar-item" to="/contract-transaction">Contract Transaction</router-link> -->
-        <router-link class="navbar-item" to="/value-transaction">Value Transaction</router-link>
+        <div class="navbar-item has-dropdown is-hoverable">
+
+          <router-link class="navbar-link" to="/eth">Ethereum</router-link>
+
+          <div class="navbar-dropdown">
+            <router-link class="navbar-item" to="/eth/wallet-seed">Seed Wallet</router-link>
+            <router-link class="navbar-item" to="/eth/import-keystore">Import Wallet</router-link>
+            <!-- <router-link class="navbar-item" to="/eth/contract-transaction">Contract Transaction</router-link> -->
+            <router-link class="navbar-item" to="/eth/value-transaction">Value Transaction</router-link>
+          </div>
+        </div>
       </div>
     </div>
   </nav>
@@ -23,6 +30,20 @@
 
 <script>
 export default {
-  name: 'Header'
+  name: 'Header',
+  data () {
+    return {
+      isMenuActive: false
+    }
+  },
+  methods: {
+    toggleMenu () {
+      if (this.isMenuActive) {
+        this.isMenuActive = false
+      } else {
+        this.isMenuActive = true
+      }
+    }
+  }
 }
 </script>

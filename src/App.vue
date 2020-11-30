@@ -11,7 +11,7 @@
 <div id="app">
   <div class="container">
     <Header />
-    <section class="hero is-medium is-primary is-bold">
+    <section class="hero is-small is-primary is-bold">
       <div class="hero-body">
         <div>
           <p class="title">Vuethwallet - vue + ethereum wallet</p>
@@ -40,20 +40,6 @@ export default {
   components: {
     Header,
     Footer
-  },
-  data () {
-    return {
-      isMenuActive: false
-    }
-  },
-  methods: {
-    toggleMenu () {
-      if (this.isMenuActive) {
-        this.isMenuActive = false
-      } else {
-        this.isMenuActive = true
-      }
-    }
   }
 }
 </script>
