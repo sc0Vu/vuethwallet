@@ -28,18 +28,30 @@
     </section>
   </div>
   <Footer />
+  <Notifications />
 </div>
 </template>
 
 <script>
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import Notifications from '@/components/Notifications'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'app',
   components: {
     Header,
-    Footer
+    Footer,
+    Notifications
+  },
+  mounted () {
+    this.notify({ text: 'You can use this wallet to make transaction on ethereum blockchain, if you have any question, please open an issue on github!', class: 'is-info' })
+  },
+  methods: {
+    ...mapActions([
+      'notify'
+    ])
   }
 }
 </script>
