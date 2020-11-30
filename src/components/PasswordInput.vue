@@ -22,7 +22,7 @@
   </div>
 
   <div class="column is-one-quarter">
-    <button class="button is-info password-button" v-on:click.prevent.self="switchType">{{ buttonText }}</button>
+    <button class="button password-button" v-bind:class="type === 'password' ? 'is-warning' : 'is-info'" v-on:click.prevent.self="switchType">{{ buttonText }}</button>
   </div>
 </div>
 </template>

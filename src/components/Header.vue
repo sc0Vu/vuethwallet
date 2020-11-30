@@ -17,7 +17,7 @@
           <router-link class="navbar-link" to="/eth">Ethereum</router-link>
 
           <div class="navbar-dropdown">
-            <router-link class="navbar-item" to="/eth/wallet-seed">Seed Wallet</router-link>
+            <router-link class="navbar-item" to="/eth/wallet-seed">Mnemonic Wallet</router-link>
             <router-link class="navbar-item" to="/eth/import-keystore">Import Wallet</router-link>
             <!-- <router-link class="navbar-item" to="/eth/contract-transaction">Contract Transaction</router-link> -->
             <router-link class="navbar-item" to="/eth/value-transaction">Value Transaction</router-link>

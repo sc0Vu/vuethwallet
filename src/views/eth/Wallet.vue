@@ -10,14 +10,6 @@
 
     <div class="panel-block" v-if="address">
       <div class="container">
-        <!-- <div class="columns">
-          <div class="column is-one-quarter">
-            <p>Random Seed</p>
-          </div>
-          <div class="column is-three-quarter">
-            <p>{{ randomSeed }}</p>
-          </div>
-        </div> -->
         <div class="columns">
           <div class="column is-one-quarter">
             <p>Address</p>
@@ -48,14 +40,13 @@
 
 <script>
 import yoethwallet from 'yoethwallet'
-import Message from '@/components/Message'
 import PasswordInput from '@/components/PasswordInput'
 import { mapActions } from 'vuex'
 
 export default {
   name: 'wallet',
   components: {
-    Message, PasswordInput
+    PasswordInput
   },
   data () {
     return {
@@ -65,7 +56,6 @@ export default {
       score: 0,
       keystore: {},
       address: '',
-      // randomSeed: '',
       privateKey: '',
       keystoreJson: '',
       keystoreJsonDataLink: '',
@@ -94,7 +84,7 @@ export default {
       this.address = wallet.getHexAddress(true)
       wallet.toV3String(this.password, {}, (err, v3Json) => {
         if (err) {
-          console.warn(err.message)
+          this.notify({ text: 'Couldn\'t stringify wallet, error: ' + err.message, class: 'is-danger' })
           return
         }
         this.keystoreJson = v3Json
@@ -124,7 +114,7 @@ export default {
 
         wallet.generate('', this.hdPathString, (err, keystore) => {
           if (err) {
-            console.warn(err.message)
+            this.notify({ text: 'Couldn\'t create wallet, error: ' + err.message, class: 'is-danger' })
             return
           }
           this.keystore = keystore

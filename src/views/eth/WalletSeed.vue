@@ -1,12 +1,6 @@
 <template>
   <div class="panel">
-    <h2 class="panel-heading">Create Wallet App - Seed</h2>
-
-    <div class="panel-block" v-if="msg">
-      <div class="container">
-        <message v-bind:message="msg" v-bind:error="error" v-on:update:msg="val => msg = val"></message>
-      </div>
-    </div>
+    <h2 class="panel-heading">Create Wallet - Mnemonic</h2>
 
     <div class="panel-block">
       <div class="container">
@@ -18,14 +12,14 @@
       <div class="container">
         <div class="columns">
           <div class="column is-one-quarter">
-            <label class="label" for="seed">Random Seed</label>
+            <label class="label" for="seed">Mnemonic (12 words)</label>
           </div>
         
           <div class="column is-third-quarter">
             <div class="control">
-              <input id="seed" class="input" type="text" v-model="randomSeed" placeholder="Random Seed" v-bind:class="{'is-danger': (!isSeedValid && randomSeed), 'is-success': (isSeedValid && randomSeed)}">
-              <p class="help is-danger seed-help" v-if="!isSeedValid && randomSeed">Random Seed isn't valid</p>
-              <p class="help is-success seed-help" v-if="isSeedValid && randomSeed">Random Seed is valid</p>
+              <input id="seed" class="input" type="text" v-model="randomSeed" placeholder="Mnemonic (12 words)" v-bind:class="{'is-danger': (!isSeedValid && randomSeed), 'is-success': (isSeedValid && randomSeed)}">
+              <p class="help is-danger seed-help" v-if="!isSeedValid && randomSeed">Mnemonic isn't valid</p>
+              <p class="help is-success seed-help" v-if="isSeedValid && randomSeed">Mnemonic is valid</p>
             </div>
           </div>
         </div>
@@ -55,7 +49,7 @@
 
     <div class="panel-block has-text-centered">
       <div class="container">
-        <button class="button is-primary" v-on:click.prevent.self="generate">Generate Wallet</button>
+        <button class="button is-primary" v-bind:disabled="working" v-on:click.prevent.self="generate">Generate Wallet</button>
         <a class="button is-danger download-button" v-bind:download="fileName" v-bind:href="keystoreJsonDataLink" v-if="keystoreJsonDataLink">Download</a>
       </div>
     </div>
@@ -64,13 +58,13 @@
 
 <script>
 import yoethwallet from 'yoethwallet'
-import Message from '@/components/Message'
 import PasswordInput from '@/components/PasswordInput'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'wallet-seed',
   components: {
-    Message, PasswordInput
+    PasswordInput
   },
   data () {
     return {
@@ -86,7 +80,8 @@ export default {
       privateKey: '',
       keystoreJson: '',
       keystoreJsonDataLink: '',
-      fileName: ''
+      fileName: '',
+      working: false
     }
   },
   computed: {
@@ -116,14 +111,13 @@ export default {
 
       let wallet = this.keystore
 
-      this.error = false
-      this.msg = 'Wallet create successfully!'
+      this.notify({ text: 'Wallet create successfully!', class: 'is-info' })
       this.privateKey = wallet.getHexPrivateKey()
       this.address = wallet.getHexAddress(true)
 
       wallet.toV3String(this.password, {}, (err, v3Json) => {
         if (err) {
-          console.warn(err.message)
+          this.notify({ text: 'Couldn\'t stringify wallet, error: ' + err.message, class: 'is-danger' })
           return
         }
         this.keystoreJson = v3Json
@@ -133,36 +127,41 @@ export default {
       })
     },
     generate (callback) {
-      if (!this.isSeedValid) {
-        this.error = true
-        this.msg = 'Please check out random seed!'
+      if (!this.password) {
+        this.notify({ text: 'Please enter valid password!', class: 'is-danger' })
         return
       }
-      if (!this.password) {
-        this.error = true
-        this.msg = 'Please enter password!'
+      if (!this.isSeedValid) {
+        this.notify({ text: 'Please check out random seed!', class: 'is-danger' })
         return
       }
       if (this.score < 3) {
-        this.error = true
-        this.msg = 'Password is not strong, please change!'
+        this.notify({ text: 'Password is not strong, please change!', class: 'is-danger' })
         return
       }
       if (!callback || typeof callback !== 'function') {
-        callback = function () {}
+        callback = function () {
+          this.working = false
+        }.bind(this)
       }
+      this.working = true
 
-      let wallet = yoethwallet.wallet
+      window.setTimeout(function () {
+        let wallet = yoethwallet.wallet
 
-      wallet.generate(this.randomSeed, '', (err, keystore) => {
-        if (err) {
-          console.warn(err.message)
-          return
-        }
-        this.keystore = keystore
-        this.newAddress(this.password, callback)
-      })
-    }
+        wallet.generate(this.randomSeed, '', (err, keystore) => {
+          if (err) {
+            this.notify({ text: 'Couldn\'t create wallet, error: ' + err.message, class: 'is-danger' })
+            return
+          }
+          this.keystore = keystore
+          this.newAddress(this.password, callback)
+        })
+      }.bind(this), 100)
+    },
+    ...mapActions([
+      'notify'
+    ])
   }
 }
 </script>
