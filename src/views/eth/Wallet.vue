@@ -80,7 +80,9 @@ export default {
       this.address = wallet.getHexAddress(true)
       wallet.toV3String(this.password, {}, (err, v3Json) => {
         if (err) {
+          console.log(err)
           this.notify({ text: 'Couldn\'t stringify wallet, error: ' + err.message, class: 'is-danger' })
+          callback()
           return
         }
         this.keystoreJson = v3Json
