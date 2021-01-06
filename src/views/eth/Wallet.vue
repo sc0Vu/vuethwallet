@@ -75,7 +75,6 @@ export default {
       }
 
       let wallet = this.keystore
-      this.notify({ text: 'Wallet create successfully!', class: 'is-info' })
       this.privateKey = wallet.getHexPrivateKey()
       this.address = wallet.getHexAddress(true)
       wallet.toV3String(this.password, {}, (err, v3Json) => {
@@ -85,6 +84,7 @@ export default {
           callback()
           return
         }
+        this.notify({ text: 'Wallet create successfully!', class: 'is-info' })
         this.keystoreJson = v3Json
         this.keystoreJsonDataLink = encodeURI('data:application/json;charset=utf-8,' + this.keystoreJson)
         this.fileName = `${wallet.getV3Filename()}.json`

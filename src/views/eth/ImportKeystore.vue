@@ -2,12 +2,6 @@
   <div class="panel">
     <h2 class="panel-heading">Import Keystore Wallet App</h2>
 
-    <div class="panel-block" v-if="msg">
-      <div class="container">
-        <message v-bind:message="msg" v-bind:error="error" v-on:update:msg="val => msg = val"></message>
-      </div>
-    </div>
-
     <div class="panel-block">
       <div class="container">
         <password-input v-on:failed="failed" v-on:success="success"></password-input>
@@ -61,7 +55,7 @@
 
     <div class="panel-block has-text-centered">
       <div class="container">
-        <button class="button is-primary file-button" v-on:click.prevent.self="importWallet">Import Wallet</button>
+        <button class="button is-primary file-button" v-bind:disabled="working" v-on:click.prevent.self="importWallet">Import Wallet</button>
       </div>
     </div>
   </div>
@@ -71,6 +65,7 @@
 import yoethwallet from 'yoethwallet'
 import Message from '@/components/Message'
 import PasswordInput from '@/components/PasswordInput'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'import-keystore',
@@ -79,8 +74,7 @@ export default {
   },
   data () {
     return {
-      msg: '',
-      error: false,
+      working: false,
       password: '',
       type: 'text',
       buttonText: 'Hide',
@@ -114,49 +108,49 @@ export default {
     },
     importWallet () {
       if (!this.isKeystoreJsonValid) {
-        this.error = true
-        this.msg = 'Please check out keystore.json!'
+        this.notify({ text: 'Please check out keystore.json!', class: 'is-danger' })
         return
       }
       if (!this.password) {
-        this.error = true
-        this.msg = 'Please enter password!'
+        this.notify({ text: 'Please enter password!', class: 'is-danger' })
         return
       }
       if (this.score < 3) {
-        this.error = true
-        this.msg = 'Password is not strong, please change!'
+        this.notify({ text: 'Password is not strong, please change!', class: 'is-danger' })
         return
       }
-      this.error = false
 
-      yoethwallet.wallet.fromV3String(this.keystoreJson, this.password, (err, keystore) => {
-        if (err) {
-          this.error = true
-          this.msg = 'Please enter valid keystore json'
-          console.warn(err.message)
-          return
-        }
+      this.working = true
 
-        let wallet = keystore
+      window.setTimeout(function () {
+        yoethwallet.wallet.fromV3String(this.keystoreJson, this.password, (err, keystore) => {
+          if (!this.working) {
+            return
+          }
+          this.working = false
+          if (err) {
+            this.notify({ text: 'Please enter valid keystore json!', class: 'is-danger' })
+            console.warn(err.message)
+            return
+          }
 
-        this.keystore = wallet
-        this.address = wallet.getHexAddress(true)
-        this.error = false
-        this.msg = 'Wallet import successfully!'
-      })
+          let wallet = keystore
+
+          this.keystore = wallet
+          this.address = wallet.getHexAddress(true)
+          this.notify({ text: 'Wallet import successfully!', class: 'is-info' })
+        })
+      }.bind(this), 100)
     },
     readKeystoreJsonFile (e) {
       var files = e.target.files
 
       if (files.length > 1) {
-        this.error = true
-        this.msg = 'Please choose only one file'
+        this.notify({ text: 'Please choose only one file!', class: 'is-danger' })
         return
       }
       if (!/(.*)\.json/.test(files[0].name)) {
-        this.error = true
-        this.msg = 'Please choose valid keystore json'
+        this.notify({ text: 'Please choose valid keystore json!', class: 'is-danger' })
         return
       }
       var reader = new FileReader()
@@ -166,12 +160,14 @@ export default {
       }.bind(this)
 
       reader.onerror = function (e) {
-        this.error = true
-        this.msg = 'Something wrong happened!'
+        this.notify({ text: 'Something wrong happened!', class: 'is-danger' })
       }.bind(this)
 
       reader.readAsText(files[0])
-    }
+    },
+    ...mapActions([
+      'notify'
+    ])
   }
 }
 </script>
