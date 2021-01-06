@@ -2,12 +2,6 @@
   <div class="panel">
     <h2 class="panel-heading">Value Transaction</h2>
 
-    <div class="panel-block" v-if="msg">
-      <div class="container">
-        <message v-bind:message="msg" v-bind:error="error" v-on:update:msg="val => msg = val"></message>
-      </div>
-    </div>
-
     <div class="panel-block">
       <div class="container">
         <password-input v-on:failed="failed" v-on:success="success"></password-input>
@@ -55,7 +49,7 @@
           
             <div class="column is-half">
               <div class="control">
-                <input id="host" class="input" type="text" v-model="host" placeholder="Host" v-bind:class="{'is-danger': (!isHostValid && host), 'is-success': isHostValid}" v-on:change="resetWeb3">
+                <input id="host" class="input" type="text" v-model="host" placeholder="Host" v-bind:class="{'is-danger': (!isHostValid && host), 'is-success': isHostValid}" v-on:change="resetProvider">
                 <p class="help is-danger" v-if="!isHostValid && host">Host isn't valid</p>
                 <p class="help is-success" v-if="isHostValid">Host is valid</p>
               </div>
@@ -214,7 +208,7 @@
 
     <div class="panel-block has-text-centered">
       <div class="container">
-        <button class="button is-primary" v-on:click.prevent.self="importWallet">Import Wallet</button>
+        <button class="button is-primary" v-bind:disabled="working" v-on:click.prevent.self="importWallet">Import Wallet</button>
         <button class="button is-info" v-on:click.prevent.self="signTransaction" v-if="address && !signedTransaction && !send">Sign Transaction</button>
         <button class="button is-warning" v-on:click.prevent.self="sendTransaction" v-if="address && signedTransaction && !send">Send Transaction</button>
         <button class="button is-danger" v-if="send">Transaction sending, please wait until confirm</button>
@@ -228,9 +222,10 @@
 import yoethwallet from 'yoethwallet'
 import Message from '@/components/Message'
 import PasswordInput from '@/components/PasswordInput'
-import Web3 from 'web3'
+import { ethers } from 'ethers'
 import config from '@/config'
 import confirmedTransaction from '@/util/confirmedTransaction'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'value-transaction',
@@ -239,8 +234,7 @@ export default {
   },
   data () {
     return {
-      msg: '',
-      error: false,
+      working: false,
       password: '',
       type: 'text',
       buttonText: 'Hide',
@@ -255,7 +249,7 @@ export default {
       gasLimit: '',
       gas: '',
       result: '',
-      web3: {},
+      provider: {},
       hosts: {},
       nonce: '',
       chainId: '',
@@ -300,66 +294,56 @@ export default {
       this.score = e.score
       this.password = e.password
     },
-    getNonce () {
-      if (!this.web3.eth) {
-        this.error = true
-        this.msg = 'Please check out host!'
-        return
-      }
-      let web3 = this.web3
-
-      web3.eth.getTransactionCount(this.address, function (err, nonce) {
-        if (err) {
-          console.warn(err.message)
-          return
-        }
-        this.nonce = nonce
-      }.bind(this))
+    async getNonce () {
+      let provider = this.provider
+      let nonce = await provider.getTransactionCount(this.address)
+      return nonce
     },
     importWallet () {
       if (!this.isKeystoreJsonValid) {
-        this.error = true
-        this.msg = 'Please check out keystore.json!'
+        this.notify({ text: 'Please check out keystore.json!', class: 'is-danger' })
         return
       }
       if (!this.password) {
-        this.error = true
-        this.msg = 'Please enter password!'
+        this.notify({ text: 'Please enter password!', class: 'is-danger' })
         return
       }
       if (this.score < 3) {
-        this.error = true
-        this.msg = 'Password is not strong, please change!'
+        this.notify({ text: 'Password is not strong, please change!', class: 'is-danger' })
         return
       }
-      this.error = false
 
-      yoethwallet.wallet.fromV3String(this.keystoreJson, this.password, (err, keystore) => {
-        if (err) {
-          this.error = true
-          this.msg = 'Please enter valid keystore json'
-          console.warn(err.message)
-          return
-        }
-        let wallet = keystore
+      this.working = true
 
-        this.keystore = wallet
-        this.address = wallet.getHexAddress(true)
-        this.error = false
-        this.msg = 'Wallet import successfully!'
-      })
+      window.setTimeout(function () {
+        yoethwallet.wallet.fromV3String(this.keystoreJson, this.password, (err, keystore) => {
+          if (!this.working) {
+            return
+          }
+          this.working = false
+          if (err) {
+            this.notify({ text: 'Please enter valid keystore json!', class: 'is-danger' })
+            console.warn(err.message)
+            return
+          }
+
+          let wallet = keystore
+
+          this.keystore = wallet
+          this.address = wallet.getHexAddress(true)
+          this.notify({ text: 'Wallet import successfully!', class: 'is-info' })
+        })
+      }.bind(this), 100)
     },
     readKeystoreJsonFile (e) {
       var files = e.target.files
 
       if (files.length > 1) {
-        this.error = true
-        this.msg = 'Please choose only one file'
+        this.notify({ text: 'Please choose only one file!', class: 'is-danger' })
         return
       }
       if (!/(.*)\.json/.test(files[0].name)) {
-        this.error = true
-        this.msg = 'Please choose valid keystore json'
+        this.notify({ text: 'Please choose valid keystore json!', class: 'is-danger' })
         return
       }
       var reader = new FileReader()
@@ -369,41 +353,22 @@ export default {
       }.bind(this)
 
       reader.onerror = function (e) {
-        this.error = true
-        this.msg = 'Something wrong happened!'
+        this.notify({ text: 'Something wrong happened!', class: 'is-danger' })
       }.bind(this)
 
       reader.readAsText(files[0])
     },
-    createWeb3 () {
-      let web3 = new Web3()
-      let provider = new Web3.providers.HttpProvider(this.host)
-
-      if (!provider.isConnected()) {
-        throw new Error('Please check the host or your interenet!')
-      }
-
-      web3.setProvider(provider)
-      return web3
-    },
     newProvider () {
-      let provider = new Web3.providers.HttpProvider(this.host)
-
-      if (!provider.isConnected()) {
-        throw new Error('Please check the host or your interenet!')
-      }
-
-      this.web3.setProvider(provider)
+      let provider = new ethers.providers.JsonRpcProvider(this.host)
+      return provider
     },
     signTransaction () {
       if (!this.host) {
-        this.error = true
-        this.msg = 'Please enter host'
+        this.notify({ text: 'Please enter host!', class: 'is-danger' })
         return
       }
       if (!this.toAddress) {
-        this.error = true
-        this.msg = 'Please enter to address'
+        this.notify({ text: 'Please enter to address!', class: 'is-danger' })
         return
       }
 
@@ -413,49 +378,42 @@ export default {
 
       this.signedTransaction = '0x' + valueTx.serialize().toString('hex')
     },
-    sendTransaction () {
+    async sendTransaction () {
       if (!this.host) {
-        this.error = true
-        this.msg = 'Please enter host'
+        this.notify({ text: 'Please enter host!', class: 'is-danger' })
         return
       }
       if (!this.signedTransaction) {
-        this.error = true
-        this.msg = 'Please sign transaction first'
+        this.notify({ text: 'Please sign transaction first!', class: 'is-danger' })
         return
       }
       this.send = true
 
-      const web3 = this.web3
-
-      web3.eth.sendRawTransaction(this.signedTransaction, function (err, txId) {
-        if (err) {
-          this.send = false
-          this.signedTransaction = ''
-          this.error = true
-          this.msg = 'Please sign transaction again'
-          console.warn(err.message)
-          return
-        }
+      const provider = this.provider
+      try {
+        let txId = await provider.send('eth_sendRawTransaction', [ this.signedTransaction ])
         this.result = txId
-
-        confirmedTransaction(web3, txId, function (err, tx) {
+        confirmedTransaction(provider, txId, function (err, tx) {
           this.send = false
           this.signedTransaction = ''
 
           if (err) {
-            this.error = true
-            this.msg = 'Please send transaction again'
+            this.notify({ text: 'Please send transaction again!', class: 'is-danger' })
             console.warn(err.message)
             return
           }
-          console.log('Transaction confirmed')
+          this.notify({ text: 'Transaction confirmed!', class: 'is-info' })
         })
-      }.bind(this))
+      } catch (err) {
+        this.send = false
+        this.signedTransaction = ''
+        this.notify({ text: 'Please sign transaction again!', class: 'is-danger' })
+        console.warn(err.message)
+      }
     },
-    resetWeb3 () {
-      if (this.web3.eth) {
-        this.web3 = {}
+    resetProvider () {
+      if (this.provider) {
+        this.provider = {}
       }
     },
     selectHost (e) {
@@ -463,18 +421,17 @@ export default {
 
       this.host = host.rpcUri
       this.chainId = host.chainId
-    }
+    },
+    ...mapActions([
+      'notify'
+    ])
   },
   watch: {
-    host (val, oval) {
+    async host (val, oval) {
       if (this.isHostValid) {
         try {
-          if (val !== oval && !this.web3.eth) {
-            this.web3 = this.createWeb3()
-          } else {
-            this.newProvider()
-          }
-          this.getNonce()
+          this.provider = this.newProvider()
+          this.nonce = await this.getNonce()
         } catch (err) {
           console.warn(err.message)
         }

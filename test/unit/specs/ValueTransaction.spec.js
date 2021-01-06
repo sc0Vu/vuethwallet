@@ -45,7 +45,7 @@ describe('ValueTransaction.vue', function () {
     expect(data.gasLimit).to.equal('')
     expect(data.gas).to.equal('')
     expect(data.result).to.equal('')
-    expect(data.web3).to.deep.equal({})
+    expect(data.provider).to.deep.equal({})
     expect(data.hosts).to.deep.equal({})
     expect(data.nonce).to.equal('')
     expect(data.chainId).to.equal('')
@@ -99,11 +99,6 @@ describe('ValueTransaction.vue', function () {
       .to.equal('function')
   })
 
-  it('should have method createWeb3', () => {
-    expect(typeof ValueTransaction.methods.createWeb3)
-      .to.equal('function')
-  })
-
   it('should have method newProvider', () => {
     expect(typeof ValueTransaction.methods.newProvider)
       .to.equal('function')
@@ -119,8 +114,8 @@ describe('ValueTransaction.vue', function () {
       .to.equal('function')
   })
 
-  it('should have method resetWeb3', () => {
-    expect(typeof ValueTransaction.methods.resetWeb3)
+  it('should have method resetProvider', () => {
+    expect(typeof ValueTransaction.methods.resetProvider)
       .to.equal('function')
   })
 
