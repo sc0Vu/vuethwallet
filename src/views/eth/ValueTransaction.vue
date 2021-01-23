@@ -90,35 +90,13 @@
 
       <div class="panel-block">
         <div class="container">
-          <div class="columns">
-            <div class="column is-one-quarter">
-              <label class="label" for="value">Value</label>
-            </div>
-          
-            <div class="column is-third-quarter">
-              <div class="control">
-                <input id="value" class="input" type="text" v-model="val" placeholder="Value" v-bind:class="{'is-success': val}">
-                <p class="help is-success" v-if="val">Value is valid</p>
-              </div>
-            </div>
-          </div>
+          <ether-units v-bind:valueLabel="'Value'" v-bind:valuePlaceholder="'Value'" v-on:success="(e) => {val = e.value * e.unit}" />
         </div>
       </div>
 
       <div class="panel-block">
         <div class="container">
-          <div class="columns">
-            <div class="column is-one-quarter">
-              <label class="label" for="gas-price">Gas Price</label>
-            </div>
-          
-            <div class="column is-third-quarter">
-              <div class="control">
-                <input id="gas-price" class="input" type="text" v-model="gasPrice" placeholder="Gas Price" v-bind:class="{'is-success': gasPrice}">
-                <p class="help is-success" v-if="gasPrice">Gas price is valid</p>
-              </div>
-            </div>
-          </div>
+          <ether-units v-bind:valueLabel="'Gas Price'" v-bind:valuePlaceholder="'Gas Price'" v-on:success="(e) => {gasPrice = e.value * e.unit}" />
         </div>
       </div>
 
@@ -237,16 +215,17 @@
 <script>
 import yoethwallet from 'yoethwallet'
 import Message from '@/components/Message'
-import PasswordInput from '@/components/PasswordInput'
 import { ethers } from 'ethers'
 import config from '@/config'
 import confirmedTransaction from '@/util/confirmedTransaction'
 import { mapActions } from 'vuex'
+import PasswordInput from '@/components/PasswordInput'
+import EtherUnits from '@/components/EtherUnits'
 
 export default {
   name: 'value-transaction',
   components: {
-    Message, PasswordInput
+    Message, PasswordInput, EtherUnits
   },
   data () {
     return {
