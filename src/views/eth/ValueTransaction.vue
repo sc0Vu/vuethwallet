@@ -31,10 +31,11 @@
         <div class="container">
           <div class="columns">
             <div class="column is-one-quarter">
-              <p>Address</p>
+              <label class="label">Address</label>
             </div>
             <div class="column is-three-quarter">
-              <p>{{ address }}</p>
+              <p v-if="!isHostValid">{{ address }}</p>
+              <p v-if="isHostValid"><a v-bind:href="`${this.explorer}/address/${this.address}`" target="_blank">{{ address }}</a></p>
             </div>
           </div>
         </div>
@@ -80,7 +81,7 @@
               <div class="control">
                 <input id="toAddress" class="input" type="text" v-model="toAddress" placeholder="To Address" v-bind:class="{'is-danger': (!isToAddressValid && toAddress), 'is-success': isToAddressValid}">
                 <p class="help is-danger" v-if="!isToAddressValid && toAddress">To Address isn't valid</p>
-                <p class="help is-success" v-if="toAddress">To Address is valid</p>
+                <p class="help is-success" v-if="isToAddressValid && toAddress">To Address is valid</p>
               </div>
             </div>
           </div>
@@ -138,7 +139,7 @@
         </div>
       </div>
 
-      <div class="panel-block">
+      <!--div class="panel-block">
         <div class="container">
           <div class="columns">
             <div class="column is-one-quarter">
@@ -149,6 +150,23 @@
               <div class="control">
                 <input id="gas" class="input" type="text" v-model="gas" placeholder="Gas" v-bind:class="{'is-success': gas}">
                 <p class="help is-success" v-if="gas">Gas is valid</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div-->
+
+      <div class="panel-block">
+        <div class="container">
+          <div class="columns">
+            <div class="column is-one-quarter">
+              <label class="label" for="data">Data</label>
+            </div>
+          
+            <div class="column is-third-quarter">
+              <div class="control">
+                <input id="data" class="input" type="text" v-model="data" placeholder="Data" v-bind:class="{'is-success': isHex(data)}">
+                <p class="help is-success" v-if="isHex(data)">Data is valid</p>
               </div>
             </div>
           </div>
@@ -164,8 +182,7 @@
           
             <div class="column is-third-quarter">
               <div class="control">
-                <input id="nonce" class="input" type="text" v-model="nonce" placeholder="Nonce" v-bind:class="{'is-success': nonce}">
-                <p class="help is-success" v-if="nonce">Nonce is valid</p>
+                <input id="nonce" class="input" type="text" v-model="nonce" placeholder="Nonce" disabled>
               </div>
             </div>
           </div>
@@ -181,8 +198,7 @@
           
             <div class="column is-third-quarter">
               <div class="control">
-                <input id="chainid" class="input" type="text" v-model="chainId" placeholder="Chain Id" v-bind:class="{'is-success': chainId}">
-                <p class="help is-success" v-if="chainId">Chain id is valid</p>
+                <input id="chainid" class="input" type="text" v-model="chainId" placeholder="Chain Id" disabled>
               </div>
             </div>
           </div>
@@ -198,7 +214,7 @@
           
             <div class="column is-third-quarter">
               <div class="control">
-                <p>{{ result }}</p>
+                <p><a v-bind:href="`${this.explorer}/tx/${this.result}`" target="_blank">{{ result }}</a></p>
               </div>
             </div>
           </div>
@@ -243,11 +259,13 @@ export default {
       address: '',
       keystoreJson: '',
       host: '',
+      explorer: '',
       toAddress: '',
       val: '',
       gasPrice: '',
       gasLimit: '',
       gas: '',
+      data: '',
       result: '',
       provider: {},
       hosts: {},
@@ -372,7 +390,20 @@ export default {
         return
       }
 
-      let valueTx = yoethwallet.tx.valueTx({from: this.address, to: this.toAddress, value: this.val, nonce: this.nonce, gas: this.gas, gasPrice: this.gasPrice, gasLimit: this.gasLimit, chainId: this.chainId})
+      let txParams = {
+        from: this.address,
+        to: this.toAddress,
+        chainId: this.chainId,
+        nonce: this.nonce,
+        value: this.isHex(this.val) ? this.val : parseInt(this.val),
+        // gas: this.isHex(this.gas) ? this.gas : parseInt(this.gas),
+        gasPrice: this.isHex(this.gasPrice) ? this.gasPrice : parseInt(this.gasPrice),
+        gasLimit: this.isHex(this.gasLimit) ? this.gasLimit : parseInt(this.gasLimit)
+      }
+      if (this.isHex(this.data)) {
+        txParams.data = this.data
+      }
+      let valueTx = yoethwallet.tx.valueTx(txParams)
 
       valueTx.sign(this.keystore.getPrivateKey())
 
@@ -393,7 +424,7 @@ export default {
       try {
         let txId = await provider.send('eth_sendRawTransaction', [ this.signedTransaction ])
         this.result = txId
-        confirmedTransaction(provider, txId, function (err, tx) {
+        confirmedTransaction(provider, txId, 1, function (err, tx) {
           this.send = false
           this.signedTransaction = ''
 
@@ -403,7 +434,7 @@ export default {
             return
           }
           this.notify({ text: 'Transaction confirmed!', class: 'is-info' })
-        })
+        }.bind(this))
       } catch (err) {
         this.send = false
         this.signedTransaction = ''
@@ -420,7 +451,14 @@ export default {
       let host = config.hosts[e.target.value]
 
       this.host = host.rpcUri
+      this.explorer = host.explorerUri
       this.chainId = host.chainId
+    },
+    isHex (s) {
+      if (typeof s !== 'string') {
+        return false
+      }
+      return /^0x[0-9a-f]+/.test(s.toLowerCase())
     },
     ...mapActions([
       'notify'
