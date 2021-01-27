@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import ValueTransaction from '@/views/ValueTransaction'
+import ValueTransaction from '@/views/eth/ValueTransaction'
 import zxcvbn from 'zxcvbn'
 import config from '@/config'
 
@@ -29,8 +29,6 @@ describe('ValueTransaction.vue', function () {
   it('should have default data', () => {
     const data = ValueTransaction.data()
 
-    expect(data.msg).to.equal('')
-    expect(data.error).to.equal(false)
     expect(data.password).to.equal('')
     expect(data.type).to.equal('text')
     expect(data.buttonText).to.equal('Hide')
@@ -47,10 +45,11 @@ describe('ValueTransaction.vue', function () {
     expect(data.result).to.equal('')
     expect(data.provider).to.deep.equal({})
     expect(data.hosts).to.deep.equal({})
-    expect(data.nonce).to.equal('')
+    expect(data.nonce).to.equal('0')
     expect(data.chainId).to.equal('')
     expect(data.signedTransaction).to.equal('')
     expect(data.send).to.equal(false)
+    expect(data.balance).to.equal('0')
   })
 
   it('should change hosts', () => {

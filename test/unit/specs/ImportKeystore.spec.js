@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import ImportKeystore from '@/views/ImportKeystore'
+import ImportKeystore from '@/views/eth/ImportKeystore'
 import zxcvbn from 'zxcvbn'
 
 describe('ImportKeystore.vue', function () {
@@ -27,8 +27,6 @@ describe('ImportKeystore.vue', function () {
   it('should have default data', () => {
     const data = ImportKeystore.data()
 
-    expect(data.msg).to.equal('')
-    expect(data.error).to.equal(false)
     expect(data.password).to.equal('')
     expect(data.type).to.equal('text')
     expect(data.buttonText).to.equal('Hide')

@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import Wallet from '@/views/Wallet'
+import Wallet from '@/views/eth/Wallet'
 import zxcvbn from 'zxcvbn'
 
 describe('Wallet.vue', function () {
@@ -25,8 +25,6 @@ describe('Wallet.vue', function () {
   it('shold have default data', () => {
     const data = Wallet.data()
 
-    expect(data.msg).to.equal('')
-    expect(data.error).to.equal(false)
     expect(data.password).to.equal('')
     expect(data.type).to.equal('text')
     expect(data.buttonText).to.equal('Hide')
