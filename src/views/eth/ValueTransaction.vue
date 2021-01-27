@@ -41,6 +41,19 @@
         </div>
       </div>
 
+      <div class="panel-block" v-if="isHostValid">
+        <div class="container">
+          <div class="columns">
+            <div class="column is-one-quarter">
+              <label class="label">Balance</label>
+            </div>
+            <div class="column is-three-quarter">
+              <p>{{ balance }} (wei)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="panel-block">
         <div class="container">
           <div class="columns">
@@ -248,10 +261,11 @@ export default {
       result: '',
       provider: {},
       hosts: {},
-      nonce: '',
+      nonce: '0',
       chainId: '',
       signedTransaction: '',
-      send: false
+      send: false,
+      balance: '0'
     }
   },
   created () {
@@ -291,7 +305,18 @@ export default {
       this.score = e.score
       this.password = e.password
     },
+    async getBalance () {
+      if (!this.provider || !this.address) {
+        return ''
+      }
+      let provider = this.provider
+      let balance = await provider.getBalance(this.address)
+      return balance
+    },
     async getNonce () {
+      if (!this.provider || !this.address) {
+        return ''
+      }
       let provider = this.provider
       let nonce = await provider.getTransactionCount(this.address)
       return nonce
@@ -446,9 +471,14 @@ export default {
   watch: {
     async host (val, oval) {
       if (this.isHostValid) {
+        // clean old state
+        this.nonce = '0'
+        this.balance = '0'
         try {
           this.provider = this.newProvider()
           this.nonce = await this.getNonce()
+          let balance = await this.getBalance()
+          this.balance = balance.toString(10)
         } catch (err) {
           console.warn(err.message)
         }
