@@ -4,11 +4,33 @@
 
     <div class="panel-block">
       <div class="container">
+        <div class="columns">
+          <div class="column is-one-quarter">
+            <label class="label" for="value">Wallet</label>
+          </div>
+        
+          <div class="column is-third-quarter">
+            <div class="control">
+              <div class="select">
+                <select v-model="walletType" v-on:blur="handleSelectWalletType">
+                  <option value="0">Choose Wallet</option>
+                  <option value="1">Import from json</option>
+                  <option value="2">Metamask</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-block" v-if="isImportJSON">
+      <div class="container">
         <password-input v-on:failed="failed" v-on:success="success"></password-input>
       </div>
     </div>
     
-    <div class="panel-block">
+    <div class="panel-block" v-if="isImportJSON">
       <div class="container">
         <div class="columns">
           <div class="column is-one-quarter">
@@ -54,7 +76,7 @@
         </div>
       </div>
 
-      <div class="panel-block">
+      <div class="panel-block" v-if="isImportJSON">
         <div class="container">
           <div class="columns">
             <div class="column is-one-quarter">
@@ -215,9 +237,9 @@
 
     <div class="panel-block has-text-centered">
       <div class="container">
-        <button class="button is-primary" v-bind:disabled="working" v-on:click.prevent.self="importWallet">Import Wallet</button>
-        <button class="button is-info" v-on:click.prevent.self="signTransaction" v-if="address && !signedTransaction && !send">Sign Transaction</button>
-        <button class="button is-warning" v-on:click.prevent.self="sendTransaction" v-if="address && signedTransaction && !send">Send Transaction</button>
+        <button class="button is-primary" v-bind:disabled="working || !isImportJSON" v-on:click.prevent.self="importWallet">Import Wallet</button>
+        <button class="button is-info" v-on:click.prevent.self="signTransaction" v-if="address && !signedTransaction && !send && isImportJSON">Sign Transaction</button>
+        <button class="button is-warning" v-on:click.prevent.self="sendTransaction" v-if="address && !send && (signedTransaction || isMetamask)">Send Transaction</button>
         <button class="button is-danger" v-if="send">Transaction sending, please wait until confirm</button>
       </div>
     </div>
@@ -234,6 +256,8 @@ import confirmedTransaction from '@/util/confirmedTransaction'
 import { mapActions } from 'vuex'
 import PasswordInput from '@/components/PasswordInput'
 import EtherUnits from '@/components/EtherUnits'
+import detectEthereumProvider from '@metamask/detect-provider'
+import { BigNumber } from 'bignumber.js'
 
 export default {
   name: 'value-transaction',
@@ -265,7 +289,9 @@ export default {
       chainId: '',
       signedTransaction: '',
       send: false,
-      balance: '0'
+      balance: '0',
+      walletType: '0',
+      metamaskProvider: null
     }
   },
   created () {
@@ -294,6 +320,12 @@ export default {
         return false
       }
       return /0x[a-zA-Z0-9]{40}/.test(this.toAddress)
+    },
+    isImportJSON () {
+      return this.walletType === '1'
+    },
+    isMetamask () {
+      return this.walletType === '2'
     }
   },
   methods: {
@@ -414,20 +446,41 @@ export default {
       this.signedTransaction = '0x' + valueTx.serialize().toString('hex')
     },
     async sendTransaction () {
-      if (!this.host) {
-        this.notify({ text: 'Please enter host!', class: 'is-danger' })
-        return
-      }
-      if (!this.signedTransaction) {
-        this.notify({ text: 'Please sign transaction first!', class: 'is-danger' })
-        return
+      if (this.isImportJSON) {
+        if (!this.host) {
+          this.notify({ text: 'Please enter host!', class: 'is-danger' })
+          return
+        }
+        if (!this.signedTransaction) {
+          this.notify({ text: 'Please sign transaction first!', class: 'is-danger' })
+          return
+        }
       }
       this.send = true
 
-      const provider = this.provider
+      const provider = (this.isImportJSON) ? this.provider : this.metamaskProvider
       try {
-        let txId = await provider.send('eth_sendRawTransaction', [ this.signedTransaction ])
+        let txId = ''
+        if (this.isImportJSON) {
+          txId = await provider.send('eth_sendRawTransaction', [ this.signedTransaction ])
+        } else {
+          let txParams = {
+            from: this.address,
+            to: this.toAddress,
+            value: this.isHex(this.val) ? this.val : '0x' + (new BigNumber(this.val)).toString(16),
+            gasPrice: this.isHex(this.gasPrice) ? this.gasPrice : '0x' + (new BigNumber(this.gasPrice)).toString(16),
+            gas: this.isHex(this.gasLimit) ? this.gasLimit : '0x' + (new BigNumber(this.gasLimit)).toString(16)
+          }
+          if (this.isHex(this.data)) {
+            txParams.data = this.data
+          }
+          txId = await this.metamaskProvider.request({ method: 'eth_sendTransaction', params: [ txParams ] })
+        }
         this.result = txId
+        if (!this.isImportJSON) {
+          this.notify({ text: 'Transaction confirmed!', class: 'is-info' })
+          return
+        }
         confirmedTransaction(provider, txId, 1, function (err, tx) {
           this.send = false
           this.signedTransaction = ''
@@ -463,6 +516,31 @@ export default {
         return false
       }
       return /^0x[0-9a-f]+/.test(s.toLowerCase())
+    },
+    async handleSelectWalletType () {
+      if (this.walletType === '2' && this.metamaskProvider === null) {
+        const metamaskProvider = await detectEthereumProvider()
+        if (metamaskProvider === window.ethereum) {
+          this.metamaskProvider = metamaskProvider
+          this.chainId = await metamaskProvider.request({ method: 'eth_chainId' })
+          const accounts = await metamaskProvider.request({ method: 'eth_requestAccounts' })
+          this.handleAccountsChange(accounts)
+          // register events
+          metamaskProvider.on('chainChanged', function (chainId) {
+            window.location.reload()
+          })
+          metamaskProvider.on('accountsChanged', this.handleAccountsChange)
+        }
+      }
+    },
+    async handleAccountsChange (accounts) {
+      if (accounts.length === 0) {
+        this.notify({ text: 'Please connect to MetaMask!', class: 'is-danger' })
+      } else if (accounts[0] !== this.address) {
+        this.address = accounts[0]
+        this.nonce = await this.metamaskProvider.request({ method: 'eth_getTransactionCount', params: [ accounts[0] ] })
+        this.balance = await this.metamaskProvider.request({ method: 'eth_getBalance', params: [ accounts[0] ] })
+      }
     },
     ...mapActions([
       'notify'

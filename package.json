@@ -14,7 +14,9 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
   "dependencies": {
+    "@metamask/detect-provider": "^1.2.0",
     "async": "^2.6.0",
+    "bignumber.js": "^9.0.1",
     "bip39": "^2.4.0",
     "ethers": "^5.0.24",
     "koa": "^2.3.0",
