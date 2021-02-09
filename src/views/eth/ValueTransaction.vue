@@ -12,10 +12,11 @@
           <div class="column is-third-quarter">
             <div class="control">
               <div class="select">
-                <select v-model="walletType" v-on:blur="handleSelectWalletType">
+                <select v-model="walletType">
                   <option value="0">Choose Wallet</option>
                   <option value="1">Import from json</option>
                   <option value="2">Metamask</option>
+                  <option value="3">Ledger</option>
                 </select>
               </div>
             </div>
@@ -76,7 +77,7 @@
         </div>
       </div>
 
-      <div class="panel-block" v-if="isImportJSON">
+      <div class="panel-block" v-if="!isMetamask">
         <div class="container">
           <div class="columns">
             <div class="column is-one-quarter">
@@ -237,8 +238,15 @@
 
     <div class="panel-block has-text-centered">
       <div class="container">
-        <button class="button is-primary" v-bind:disabled="working || !isImportJSON" v-on:click.prevent.self="importWallet">Import Wallet</button>
-        <button class="button is-info" v-on:click.prevent.self="signTransaction" v-if="address && !signedTransaction && !send && isImportJSON">Sign Transaction</button>
+        <button class="button is-primary" v-bind:disabled="working" v-on:click.prevent.self="importWallet" v-if="walletType !== '0'">
+          <template v-if="isImportJSON">
+            Import Wallet
+          </template>
+          <template v-if="!isImportJSON">
+            Connect
+          </template>
+        </button>
+        <button class="button is-info" v-on:click.prevent.self="signTransaction" v-if="address && !signedTransaction && !send && (isImportJSON || isLedger)">Sign Transaction</button>
         <button class="button is-warning" v-on:click.prevent.self="sendTransaction" v-if="address && !send && (signedTransaction || isMetamask)">Send Transaction</button>
         <button class="button is-danger" v-if="send">Transaction sending, please wait until confirm</button>
       </div>
@@ -258,6 +266,8 @@ import PasswordInput from '@/components/PasswordInput'
 import EtherUnits from '@/components/EtherUnits'
 import detectEthereumProvider from '@metamask/detect-provider'
 import { BigNumber } from 'bignumber.js'
+import LedgerTransportWebUSB from '@ledgerhq/hw-transport-webusb'
+import LedgerEtherApp from '@ledgerhq/hw-app-eth'
 
 export default {
   name: 'value-transaction',
@@ -291,7 +301,9 @@ export default {
       send: false,
       balance: '0',
       walletType: '0',
-      metamaskProvider: null
+      metamaskProvider: null,
+      path: '44\'/60\'/0\'/0/0',
+      ledgerApp: null
     }
   },
   created () {
@@ -326,6 +338,9 @@ export default {
     },
     isMetamask () {
       return this.walletType === '2'
+    },
+    isLedger () {
+      return this.walletType === '3'
     }
   },
   methods: {
@@ -353,41 +368,83 @@ export default {
       let nonce = await provider.getTransactionCount(this.address)
       return nonce
     },
-    importWallet () {
-      if (!this.isKeystoreJsonValid) {
-        this.notify({ text: 'Please check out keystore.json!', class: 'is-danger' })
-        return
-      }
-      if (!this.password) {
-        this.notify({ text: 'Please enter password!', class: 'is-danger' })
-        return
-      }
-      if (this.score < 3) {
-        this.notify({ text: 'Password is not strong, please change!', class: 'is-danger' })
-        return
-      }
+    async importWallet () {
+      if (this.walletType === '1') {
+        if (!this.isKeystoreJsonValid) {
+          this.notify({ text: 'Please check out keystore.json!', class: 'is-danger' })
+          return
+        }
+        if (!this.password) {
+          this.notify({ text: 'Please enter password!', class: 'is-danger' })
+          return
+        }
+        if (this.score < 3) {
+          this.notify({ text: 'Password is not strong, please change!', class: 'is-danger' })
+          return
+        }
 
-      this.working = true
+        this.working = true
 
-      window.setTimeout(function () {
-        yoethwallet.wallet.fromV3String(this.keystoreJson, this.password, (err, keystore) => {
-          if (!this.working) {
-            return
+        window.setTimeout(function () {
+          yoethwallet.wallet.fromV3String(this.keystoreJson, this.password, (err, keystore) => {
+            if (!this.working) {
+              return
+            }
+            this.working = false
+            if (err) {
+              this.notify({ text: 'Please enter valid keystore json!', class: 'is-danger' })
+              console.warn(err.message)
+              return
+            }
+
+            let wallet = keystore
+
+            this.keystore = wallet
+            this.address = wallet.getHexAddress(true)
+            this.notify({ text: 'Wallet import successfully!', class: 'is-info' })
+          })
+        }.bind(this), 100)
+      } else if (this.walletType === '2' && this.metamaskProvider === null) {
+        try {
+          this.working = true
+          const metamaskProvider = await detectEthereumProvider()
+          if (metamaskProvider === window.ethereum) {
+            this.metamaskProvider = metamaskProvider
+            this.chainId = await metamaskProvider.request({ method: 'eth_chainId' })
+            const accounts = await metamaskProvider.request({ method: 'eth_requestAccounts' })
+            this.handleAccountsChange(accounts)
+            // register events
+            metamaskProvider.on('chainChanged', function (chainId) {
+              window.location.reload()
+            })
+            metamaskProvider.on('accountsChanged', this.handleAccountsChange)
+            this.notify({ text: 'Wallet connect successfully!', class: 'is-info' })
           }
+        } catch (err) {
+          console.warn(err.message)
+        } finally {
           this.working = false
-          if (err) {
-            this.notify({ text: 'Please enter valid keystore json!', class: 'is-danger' })
-            console.warn(err.message)
-            return
+        }
+      } else if (this.walletType === '3') {
+        try {
+          this.working = true
+          let transport = await LedgerTransportWebUSB.create()
+          const ledgerApp = new LedgerEtherApp(transport)
+          const { address } = await ledgerApp.getAddress(this.path, true)
+          this.address = address
+          this.ledgerApp = ledgerApp
+          this.notify({ text: 'Wallet connect successfully!', class: 'is-info' })
+        } catch (err) {
+          if (!navigator.usb) {
+            this.notify({ text: 'Please use chromium based browser!', class: 'is-danger' })
+          } else {
+            this.notify({ text: 'Please make sure eth app was installed and started!', class: 'is-danger' })
           }
-
-          let wallet = keystore
-
-          this.keystore = wallet
-          this.address = wallet.getHexAddress(true)
-          this.notify({ text: 'Wallet import successfully!', class: 'is-info' })
-        })
-      }.bind(this), 100)
+          console.warn(err.message)
+        } finally {
+          this.working = false
+        }
+      }
     },
     readKeystoreJsonFile (e) {
       var files = e.target.files
@@ -416,7 +473,7 @@ export default {
       let provider = new ethers.providers.JsonRpcProvider(this.host)
       return provider
     },
-    signTransaction () {
+    async signTransaction () {
       if (!this.host) {
         this.notify({ text: 'Please enter host!', class: 'is-danger' })
         return
@@ -441,9 +498,17 @@ export default {
       }
       let valueTx = yoethwallet.tx.valueTx(txParams)
 
-      valueTx.sign(this.keystore.getPrivateKey())
+      if (this.isImportJSON) {
+        valueTx.sign(this.keystore.getPrivateKey())
 
-      this.signedTransaction = '0x' + valueTx.serialize().toString('hex')
+        this.signedTransaction = '0x' + valueTx.serialize().toString('hex')
+      } else if (this.isLedger) {
+        const sig = await this.ledgerApp.signTransaction(this.path, valueTx.serialize().toString('hex'))
+        valueTx.v = '0x' + sig.v
+        valueTx.r = '0x' + sig.r
+        valueTx.s = '0x' + sig.s
+        this.signedTransaction = '0x' + valueTx.serialize().toString('hex')
+      }
     },
     async sendTransaction () {
       if (this.isImportJSON) {
@@ -458,12 +523,10 @@ export default {
       }
       this.send = true
 
-      const provider = (this.isImportJSON) ? this.provider : this.metamaskProvider
+      const provider = (this.isMetamask) ? this.metamaskProvider : this.provider
       try {
         let txId = ''
-        if (this.isImportJSON) {
-          txId = await provider.send('eth_sendRawTransaction', [ this.signedTransaction ])
-        } else {
+        if (this.isMetamask) {
           let txParams = {
             from: this.address,
             to: this.toAddress,
@@ -475,6 +538,8 @@ export default {
             txParams.data = this.data
           }
           txId = await this.metamaskProvider.request({ method: 'eth_sendTransaction', params: [ txParams ] })
+        } else {
+          txId = await provider.send('eth_sendRawTransaction', [ this.signedTransaction ])
         }
         this.result = txId
         if (!this.isImportJSON) {
@@ -516,22 +581,6 @@ export default {
         return false
       }
       return /^0x[0-9a-f]+/.test(s.toLowerCase())
-    },
-    async handleSelectWalletType () {
-      if (this.walletType === '2' && this.metamaskProvider === null) {
-        const metamaskProvider = await detectEthereumProvider()
-        if (metamaskProvider === window.ethereum) {
-          this.metamaskProvider = metamaskProvider
-          this.chainId = await metamaskProvider.request({ method: 'eth_chainId' })
-          const accounts = await metamaskProvider.request({ method: 'eth_requestAccounts' })
-          this.handleAccountsChange(accounts)
-          // register events
-          metamaskProvider.on('chainChanged', function (chainId) {
-            window.location.reload()
-          })
-          metamaskProvider.on('accountsChanged', this.handleAccountsChange)
-        }
-      }
     },
     async handleAccountsChange (accounts) {
       if (accounts.length === 0) {
