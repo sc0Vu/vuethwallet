@@ -503,6 +503,7 @@ export default {
 
         this.signedTransaction = '0x' + valueTx.serialize().toString('hex')
       } else if (this.isLedger) {
+        valueTx.v = this.chainId
         const sig = await this.ledgerApp.signTransaction(this.path, valueTx.serialize().toString('hex'))
         valueTx.v = '0x' + sig.v
         valueTx.r = '0x' + sig.r
