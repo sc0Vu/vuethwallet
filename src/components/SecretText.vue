@@ -27,8 +27,7 @@ export default {
   name: 'secret-text',
   data () {
     return {
-      type: 'text',
-      buttonText: 'Hide'
+      type: 'password'
     }
   },
   props: {
@@ -49,16 +48,17 @@ export default {
     asteriskText () {
       // return ''.padStart(this.secretText.length, '*')
       return '******************************************'
+    },
+    buttonText () {
+      return (this.type === 'text') ? 'Hide' : 'Show'
     }
   },
   methods: {
     switchType () {
       if (this.type === 'text') {
         this.type = 'password'
-        this.buttonText = 'Show'
       } else {
         this.type = 'text'
-        this.buttonText = 'Hide'
       }
     }
   }
