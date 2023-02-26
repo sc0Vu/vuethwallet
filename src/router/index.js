@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Index from '@/views/Index'
+import NotFound from '@/views/NotFound'
 
 // eth
 import EthIndex from '@/views/eth/EthIndex'
@@ -69,6 +70,14 @@ export default new Router({
         //   }
         // }
       ]
+    },
+    {
+      path: '*',
+      name: 'notfound',
+      component: NotFound,
+      meta: {
+        title: 'NotFound'
+      }
     }
   ]
 })
