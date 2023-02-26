@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <div class="panel-block has-text-centered" v-if="address">
+    <div class="panel-block" v-if="address">
       <div class="container">
         <div class="columns">
           <div class="column is-one-quarter">
@@ -50,6 +50,7 @@
             <p>{{ address }}</p>
           </div>
         </div>
+        <secret-text :labelText="'Privatekey'" :secretText="`0x${privateKey}`"></secret-text>
       </div>
     </div>
 
@@ -65,12 +66,13 @@
 import yoethwallet from 'yoethwallet'
 import Message from '@/components/Message'
 import PasswordInput from '@/components/PasswordInput'
+import SecretText from '@/components/SecretText'
 import { mapActions } from 'vuex'
 
 export default {
   name: 'import-keystore',
   components: {
-    Message, PasswordInput
+    Message, PasswordInput, SecretText
   },
   data () {
     return {
@@ -80,6 +82,7 @@ export default {
       buttonText: 'Hide',
       score: 0,
       keystore: {},
+      privateKey: '',
       address: '',
       keystoreJson: ''
     }
@@ -108,7 +111,7 @@ export default {
     },
     importWallet () {
       if (!this.isKeystoreJsonValid) {
-        this.notify({ text: 'Please check out keystore.json!', class: 'is-danger' })
+        this.notify({ text: 'Please check out keystore file (make sure either the format is json and the file extension is .json).', class: 'is-danger' })
         return
       }
       if (!this.password) {
@@ -137,6 +140,7 @@ export default {
           let wallet = keystore
 
           this.keystore = wallet
+          this.privateKey = wallet.getHexPrivateKey()
           this.address = wallet.getHexAddress(true)
           this.notify({ text: 'Wallet import successfully!', class: 'is-info' })
         })
@@ -150,7 +154,7 @@ export default {
         return
       }
       if (!/(.*)\.json/.test(files[0].name)) {
-        this.notify({ text: 'Please choose valid keystore json!', class: 'is-danger' })
+        this.notify({ text: 'Please choose valid keystore json (make sure either the format is json and the file extension is .json).', class: 'is-danger' })
         return
       }
       var reader = new FileReader()

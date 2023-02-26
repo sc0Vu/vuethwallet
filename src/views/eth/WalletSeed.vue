@@ -36,14 +36,7 @@
             <p>{{ address }}</p>
           </div>
         </div>
-        <div class="columns">
-          <div class="column is-one-quarter">
-            <p>Privatekey</p>
-          </div>
-          <div class="column is-three-quarter">
-            <p>{{ privateKey }}</p>
-          </div>
-        </div>
+        <secret-text :labelText="'Privatekey'" :secretText="`0x${privateKey}`"></secret-text>
       </div>
     </div>
 
@@ -59,12 +52,13 @@
 <script>
 import yoethwallet from 'yoethwallet'
 import PasswordInput from '@/components/PasswordInput'
+import SecretText from '@/components/SecretText'
 import { mapActions } from 'vuex'
 
 export default {
   name: 'wallet-seed',
   components: {
-    PasswordInput
+    PasswordInput, SecretText
   },
   data () {
     return {
