@@ -8,7 +8,7 @@ import EthIndex from '@/views/eth/EthIndex'
 import Wallet from '@/views/eth/Wallet'
 import WalletSeed from '@/views/eth/WalletSeed'
 import ImportKeystore from '@/views/eth/ImportKeystore'
-import ValueTransaction from '@/views/eth/ValueTransaction'
+import EtherTransaction from '@/views/eth/EtherTransaction'
 // import ContractTransaction from '@/views/eth/ContractTransaction'
 
 Vue.use(Router)
@@ -54,11 +54,11 @@ export default new Router({
             title: 'Import Wallet'
           }
         }, {
-          path: 'value-transaction',
+          path: 'ether-transaction',
           name: 'valueTransaction',
-          component: ValueTransaction,
+          component: EtherTransaction,
           meta: {
-            title: 'Value Transaction'
+            title: 'Ether Transaction'
           }
         }
         // {

@@ -21,7 +21,7 @@
             <router-link class="navbar-item" to="/eth/wallet-seed">Recover Wallet from Mnemonic</router-link>
             <router-link class="navbar-item" to="/eth/import-keystore">Recover Wallet from Keystore</router-link>
             <!-- <router-link class="navbar-item" to="/eth/contract-transaction">Contract Transaction</router-link> -->
-            <router-link class="navbar-item" to="/eth/value-transaction">Value Transaction</router-link>
+            <router-link class="navbar-item" to="/eth/ether-transaction">Ether Transaction</router-link>
           </div>
         </div>
       </div>

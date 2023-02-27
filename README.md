@@ -48,9 +48,9 @@ import wallet from keystore.json
 
 make contract transaction
 
-5. /value-transaction
+5. /ether-transaction
 
-make value transaction
+make ether transaction
 
 # Test
 
@@ -68,7 +68,7 @@ make value transaction
 
 # Send value
 
-1. Choose the value transaction or go to /value-transaction.
+1. Choose the ether transaction or go to /ether-transaction.
 
 2. Import your wallet file and enter the password.
 

@@ -1,33 +1,33 @@
 import Vue from 'vue'
-import ValueTransaction from '@/views/eth/ValueTransaction'
+import EtherTransaction from '@/views/eth/EtherTransaction'
 import zxcvbn from 'zxcvbn'
 import config from '@/config'
 
-describe('ValueTransaction.vue', function () {
+describe('EtherTransaction.vue', function () {
   const weakPassword = zxcvbn('aaaaaaaa')
   const strongPassword = zxcvbn('qwfgzxjk123')
   const validKeystoreJson = `{"version":3,"id":"884a5d82-b733-4439-bd77-da963d843533","address":"149a7dff81ecee54652e57e97b0ce2f80763e9fe","crypto":{"ciphertext":"a7b99127257b2d7e9c240190f9476a973a424976342652be7746f6fb51bcdf63","cipherparams":{"iv":"755a411527608ed95d6c0e273a70b303"},"cipher":"aes-128-ctr","kdf":"scrypt","kdfparams":{"dklen":32,"salt":"38fd8be9dc52df2a906129abbc6269408e1c2133996b34e2371099ef6c544a99","n":262144,"r":8,"p":1},"mac":"f6f6ee7d755c841b9b9382563e112a47e172e53da8c36533adacaf80db5c6cac"}}`
   const inValidKeystoreJson = '{version:1}}'
-  const Constructor = Vue.extend(ValueTransaction)
+  const Constructor = Vue.extend(EtherTransaction)
   const host = config.hosts.rinkeby
 
-  it('should have value-transaction name', () => {
-    expect(ValueTransaction.name)
-      .to.equal('value-transaction')
+  it('should have ether-transaction name', () => {
+    expect(EtherTransaction.name)
+      .to.equal('ether-transaction')
   })
 
   it('should have message components', () => {
-    expect(typeof ValueTransaction.components.Message)
+    expect(typeof EtherTransaction.components.Message)
       .to.equal('object')
   })
 
   it('should have password input components', () => {
-    expect(typeof ValueTransaction.components.PasswordInput)
+    expect(typeof EtherTransaction.components.PasswordInput)
       .to.equal('object')
   })
 
   it('should have default data', () => {
-    const data = ValueTransaction.data()
+    const data = EtherTransaction.data()
 
     expect(data.password).to.equal('')
     expect(data.type).to.equal('text')
@@ -53,73 +53,73 @@ describe('ValueTransaction.vue', function () {
   })
 
   it('should change hosts', () => {
-    ValueTransaction.created()
+    EtherTransaction.created()
 
-    expect(ValueTransaction.hosts).to.deep.equal(config.hosts || {})
+    expect(EtherTransaction.hosts).to.deep.equal(config.hosts || {})
   })
 
   it('should have computed isKeystoreJsonValid', () => {
-    expect(typeof ValueTransaction.computed.isKeystoreJsonValid)
+    expect(typeof EtherTransaction.computed.isKeystoreJsonValid)
       .to.equal('function')
   })
 
   it('should have computed isHostValid', () => {
-    expect(typeof ValueTransaction.computed.isHostValid)
+    expect(typeof EtherTransaction.computed.isHostValid)
       .to.equal('function')
   })
 
   it('should have computed isToAddressValid', () => {
-    expect(typeof ValueTransaction.computed.isToAddressValid)
+    expect(typeof EtherTransaction.computed.isToAddressValid)
       .to.equal('function')
   })
 
   it('should have method failed', () => {
-    expect(typeof ValueTransaction.methods.failed)
+    expect(typeof EtherTransaction.methods.failed)
       .to.equal('function')
   })
 
   it('should have method success', () => {
-    expect(typeof ValueTransaction.methods.success)
+    expect(typeof EtherTransaction.methods.success)
       .to.equal('function')
   })
 
   it('should have method getNonce', () => {
-    expect(typeof ValueTransaction.methods.getNonce)
+    expect(typeof EtherTransaction.methods.getNonce)
       .to.equal('function')
   })
 
   it('should have method importWallet', () => {
-    expect(typeof ValueTransaction.methods.importWallet)
+    expect(typeof EtherTransaction.methods.importWallet)
       .to.equal('function')
   })
 
   it('should have method readKeystoreJsonFile', () => {
-    expect(typeof ValueTransaction.methods.readKeystoreJsonFile)
+    expect(typeof EtherTransaction.methods.readKeystoreJsonFile)
       .to.equal('function')
   })
 
   it('should have method newProvider', () => {
-    expect(typeof ValueTransaction.methods.newProvider)
+    expect(typeof EtherTransaction.methods.newProvider)
       .to.equal('function')
   })
 
   it('should have method signTransaction', () => {
-    expect(typeof ValueTransaction.methods.signTransaction)
+    expect(typeof EtherTransaction.methods.signTransaction)
       .to.equal('function')
   })
 
   it('should have method sendTransaction', () => {
-    expect(typeof ValueTransaction.methods.sendTransaction)
+    expect(typeof EtherTransaction.methods.sendTransaction)
       .to.equal('function')
   })
 
   it('should have method resetProvider', () => {
-    expect(typeof ValueTransaction.methods.resetProvider)
+    expect(typeof EtherTransaction.methods.resetProvider)
       .to.equal('function')
   })
 
   it('should have method selectHost', () => {
-    expect(typeof ValueTransaction.methods.selectHost)
+    expect(typeof EtherTransaction.methods.selectHost)
       .to.equal('function')
   })
 
@@ -259,7 +259,7 @@ describe('ValueTransaction.vue', function () {
     })
   })
 
-  it('should sigh a value transaction', function (done) {
+  it('should sigh a ether transaction', function (done) {
     // 6 mins
     this.timeout(360000)
 

@@ -1,6 +1,6 @@
 <template>
   <div class="panel">
-    <h2 class="panel-heading">Value Transaction</h2>
+    <h2 class="panel-heading">Ether Transaction</h2>
 
     <div class="panel-block">
       <div class="container">
@@ -270,7 +270,7 @@ import LedgerTransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import LedgerEtherApp from '@ledgerhq/hw-app-eth'
 
 export default {
-  name: 'value-transaction',
+  name: 'ether-transaction',
   components: {
     Message, PasswordInput, EtherUnits
   },
