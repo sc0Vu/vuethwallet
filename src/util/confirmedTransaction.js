@@ -2,7 +2,6 @@ const whilst = require('async/whilst')
 
 module.exports = function (provider, txId, limit, cb) {
   let confirmed = false
-  // let blockNumber = provider.blockNumber
 
   return whilst(
     function () {
@@ -11,14 +10,15 @@ module.exports = function (provider, txId, limit, cb) {
     function (callback) {
       provider.getTransaction(txId)
         .then(function (tx) {
-          if (tx && tx.blockNumber !== null) {
-            // if (blockNumber >= (tx.blockNumber + limit)) {
-            confirmed = true
-            window.setTimeout(function () {
-              callback(null, tx)
-            }, 1000)
-            return
-            // }
+          const blockNumber = provider.blockNumber
+          if ((blockNumber && blockNumber > 0) && (tx && tx.blockNumber !== null)) {
+            if (blockNumber >= (tx.blockNumber + limit)) {
+              confirmed = true
+              window.setTimeout(function () {
+                callback(null, tx)
+              }, 1000)
+              return
+            }
           }
           window.setTimeout(function () {
             callback(null, null)

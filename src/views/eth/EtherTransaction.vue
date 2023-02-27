@@ -248,7 +248,7 @@
         </button>
         <button class="button is-info" v-on:click.prevent.self="signTransaction" v-if="address && !signedTransaction && !send && (isImportJSON || isLedger)">Sign Transaction</button>
         <button class="button is-warning" v-on:click.prevent.self="sendTransaction" v-if="address && !send && (signedTransaction || isMetamask)">Send Transaction</button>
-        <button class="button is-danger" v-if="send">Transaction sending, please wait until confirm</button>
+        <button class="button is-danger" v-if="send">Transaction sending, please wait until it's confirmed</button>
       </div>
     </div>
 
@@ -281,6 +281,7 @@ export default {
       type: 'text',
       buttonText: 'Hide',
       score: 0,
+      confirmation: 0,
       keystore: {},
       address: '',
       keystoreJson: '',
@@ -557,6 +558,7 @@ export default {
             return
           }
           this.notify({ text: 'Transaction confirmed!', class: 'is-info' })
+          this.handleTransactionConfirmed()
         }.bind(this))
       } catch (err) {
         this.send = false
@@ -576,6 +578,7 @@ export default {
       this.host = host.rpcUri
       this.explorer = host.explorerUri
       this.chainId = host.chainId
+      this.confirmation = host.confirmation ? host.confirmation : 1
     },
     isHex (s) {
       if (typeof s !== 'string') {
@@ -591,6 +594,11 @@ export default {
         this.nonce = await this.metamaskProvider.request({ method: 'eth_getTransactionCount', params: [ accounts[0] ] })
         this.balance = await this.metamaskProvider.request({ method: 'eth_getBalance', params: [ accounts[0] ] })
       }
+    },
+    async handleTransactionConfirmed () {
+      this.nonce = await this.getNonce()
+      let balance = await this.getBalance()
+      this.balance = balance.toString(10)
     },
     ...mapActions([
       'notify'
