@@ -163,7 +163,7 @@ describe('EtherTransaction.vue', function () {
         expect(vm.error)
           .to.equal(true)
         expect(vm.msg)
-          .to.equal('Please check out keystore.json!')
+          .to.equal('Please check out keystore file (make sure either the format is json and the file extension is .json).')
         done()
       })
     })

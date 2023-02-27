@@ -154,7 +154,7 @@ export default {
         return
       }
       if (!/(.*)\.json/.test(files[0].name)) {
-        this.notify({ text: 'Please choose valid keystore json (make sure either the format is json and the file extension is .json).', class: 'is-danger' })
+        this.notify({ text: 'Please choose valid keystore json (make sure the file extension is .json).', class: 'is-danger' })
         return
       }
       var reader = new FileReader()

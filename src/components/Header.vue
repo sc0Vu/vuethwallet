@@ -24,6 +24,14 @@
             <router-link class="navbar-item" to="/eth/ether-transaction">Ether Transaction</router-link>
           </div>
         </div>
+        <a class="navbar-item" href="https://github.com/sc0Vu/vuethwallet">
+          <span class="icon">
+            <i class="fab fa-github"></i>
+          </span>
+          <span>
+            Github
+          </span>
+        </a>
       </div>
     </div>
   </nav>
