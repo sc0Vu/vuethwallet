@@ -13,7 +13,7 @@
   <div class="column is-one-quarter">
     <div class="select">
       <select v-model="unit">
-        <option v-bind:value="u" v-for="for (i, u) in units">{{ u }}</option>
+        <option v-bind:value="u" v-for="(i, u) in units">{{ u }}</option>
       </select>
     </div>
   </div>
