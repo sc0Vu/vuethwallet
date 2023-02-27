@@ -7,23 +7,17 @@ config.hosts = {
     explorerUri: 'https://etherscan.io',
     chainId: 1
   },
-  ropsten: {
+  goerli: {
     test: true,
-    rpcUri: 'https://ropsten.infura.io/v3/e117f524e71d42ec85df7fbdfe2e46e3',
-    explorerUri: 'https://ropsten.etherscan.io',
-    chainId: 3
+    rpcUri: 'https://goerli.infura.io/v3/e117f524e71d42ec85df7fbdfe2e46e3',
+    explorerUri: 'https://goerli.etherscan.io',
+    chainId: 5
   },
-  kovan: {
+  sepolia: {
     test: true,
-    rpcUri: 'https://kovan.infura.io/v3/e117f524e71d42ec85df7fbdfe2e46e3',
-    explorerUri: 'https://kovan.etherscan.io',
-    chainId: 42
-  },
-  rinkeby: {
-    test: true,
-    rpcUri: 'https://rinkeby.infura.io/v3/e117f524e71d42ec85df7fbdfe2e46e3',
-    explorerUri: 'https://rinkeby.etherscan.io',
-    chainId: 4
+    rpcUri: 'https://sepolia.infura.io/v3/e117f524e71d42ec85df7fbdfe2e46e3',
+    explorerUri: 'https://sepolia.etherscan.io',
+    chainId: 11155111
   }
 }
 
