@@ -55,7 +55,7 @@ export default {
       privateKey: '',
       keystoreJson: '',
       keystoreJsonDataLink: '',
-      hdPathString: 'm/44\'/60\'/0\'/0',
+      hdPathString: 'm/44\'/60\'/0\'/0/0',
       fileName: '',
       working: false
     }
