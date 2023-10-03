@@ -10,7 +10,7 @@
 <template>
 <div id="app">
   <div class="container">
-    <Header />
+    <NavBar />
     <section class="hero is-small is-primary is-bold">
       <div class="hero-body">
         <div>
@@ -27,22 +27,22 @@
       </div>
     </section>
   </div>
-  <Footer />
+  <Bottom />
   <Notifications />
 </div>
 </template>
 
 <script>
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
+import NavBar from '@/components/NavBar'
+import Bottom from '@/components/Bottom'
 import Notifications from '@/components/Notifications'
 import { mapActions } from 'vuex'
 
 export default {
   name: 'app',
   components: {
-    Header,
-    Footer,
+    NavBar,
+    Bottom,
     Notifications
   },
   mounted () {

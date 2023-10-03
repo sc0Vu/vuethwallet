@@ -39,7 +39,7 @@
 
 <script>
 export default {
-  name: 'Header',
+  name: 'NavBar',
   data () {
     return {
       isMenuActive: false
