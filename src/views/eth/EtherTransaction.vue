@@ -64,7 +64,7 @@
         </div>
       </div>
 
-      <div class="panel-block" v-if="isHostValid">
+      <div class="panel-block" v-if="isHostValid || isMetamask">
         <div class="container">
           <div class="columns">
             <div class="column is-one-quarter">
@@ -342,6 +342,9 @@ export default {
     },
     isLedger () {
       return this.walletType === '3'
+    },
+    isMetamaskConnected () {
+      return window.ethereum ? window.ethereum.isConnected() : false
     }
   },
   methods: {
@@ -357,6 +360,10 @@ export default {
       if (!this.provider || !this.address) {
         return ''
       }
+      if (this.isMetamask) {
+        const balance = parseInt(await this.metamaskProvider.request({ method: 'eth_getBalance', params: [ this.address ] }), 16).toString()
+        return balance
+      }
       let provider = this.provider
       let balance = await provider.getBalance(this.address)
       return balance
@@ -364,6 +371,10 @@ export default {
     async getNonce () {
       if (!this.provider || !this.address) {
         return ''
+      }
+      if (this.isMetamask) {
+        const nonce = await this.metamaskProvider.request({ method: 'eth_getTransactionCount', params: [ this.address ] })
+        return nonce
       }
       let provider = this.provider
       let nonce = await provider.getTransactionCount(this.address)
@@ -411,7 +422,20 @@ export default {
           const metamaskProvider = await detectEthereumProvider()
           if (metamaskProvider === window.ethereum) {
             this.metamaskProvider = metamaskProvider
-            this.chainId = await metamaskProvider.request({ method: 'eth_chainId' })
+            let chainId = await metamaskProvider.request({ method: 'eth_chainId' })
+            if (chainId.substr(0, 2) === '0x') {
+              chainId = parseInt(chainId, 16)
+            }
+            // filter config
+            this.chainId = chainId
+            const hosts = Object.values(config.hosts).filter((h) => h.chainId === chainId)
+            if (hosts.length < 1) {
+              console.warn('Unsupported network: ' + chainId)
+            } else {
+              const host = hosts[0]
+              this.explorer = host.explorerUri
+              this.confirmation = host.confirmation ? host.confirmation : 1
+            }
             const accounts = await metamaskProvider.request({ method: 'eth_requestAccounts' })
             this.handleAccountsChange(accounts)
             // register events
@@ -546,6 +570,7 @@ export default {
         this.result = txId
         if (!this.isImportJSON) {
           this.notify({ text: 'Transaction confirmed!', class: 'is-info' })
+          this.handleTransactionConfirmed()
           return
         }
         confirmedTransaction(provider, txId, 1, function (err, tx) {
@@ -592,13 +617,14 @@ export default {
       } else if (accounts[0] !== this.address) {
         this.address = accounts[0]
         this.nonce = await this.metamaskProvider.request({ method: 'eth_getTransactionCount', params: [ accounts[0] ] })
-        this.balance = await this.metamaskProvider.request({ method: 'eth_getBalance', params: [ accounts[0] ] })
+        this.balance = parseInt(await this.metamaskProvider.request({ method: 'eth_getBalance', params: [ accounts[0] ] }), 16).toString()
       }
     },
     async handleTransactionConfirmed () {
       this.nonce = await this.getNonce()
       let balance = await this.getBalance()
       this.balance = balance.toString(10)
+      this.send = false
     },
     ...mapActions([
       'notify'

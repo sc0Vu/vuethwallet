@@ -21,6 +21,20 @@ config.hosts = {
     explorerUri: 'https://sepolia.etherscan.io',
     chainId: 11155111,
     confirmation: 2
+  },
+  polygon: {
+    test: true,
+    rpcUri: 'https://polygon-rpc.com',
+    explorerUri: 'https://polygonscan.com',
+    chainId: 137,
+    confirmation: 64
+  },
+  mumbai: {
+    test: true,
+    rpcUri: 'https://polygon-mumbai.infura.io/v3/e117f524e71d42ec85df7fbdfe2e46e3',
+    explorerUri: 'https://mumbai.polygonscan.com',
+    chainId: 80001,
+    confirmation: 2
   }
 }
 

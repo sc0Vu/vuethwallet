@@ -21,7 +21,7 @@
 </template>
 
 <script>
-
+// TODO: use bignumber instead
 export default {
   name: 'ether-units',
   data () {
