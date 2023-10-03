@@ -71,6 +71,7 @@
               <label class="label">Balance</label>
             </div>
             <div class="column is-three-quarter">
+              <!-- TODO: format the balance with units -->
               <p>{{ balance }} (wei)</p>
             </div>
           </div>
@@ -126,13 +127,13 @@
 
       <div class="panel-block">
         <div class="container">
-          <ether-units v-bind:valueLabel="'Value'" v-bind:valuePlaceholder="'Value'" v-on:success="(e) => {val = e.value * e.unit}" />
+          <ether-units v-bind:valueLabel="'Value'" v-bind:valuePlaceholder="'Value'" v-on:success="(e) => {val = '0x' + e.value.multipliedBy(e.unit).toString(16)}" />
         </div>
       </div>
 
       <div class="panel-block">
         <div class="container">
-          <ether-units v-bind:valueLabel="'Gas Price'" v-bind:valuePlaceholder="'Gas Price'" v-on:success="(e) => {gasPrice = e.value * e.unit}" />
+          <ether-units v-bind:valueLabel="'Gas Price'" v-bind:valuePlaceholder="'Gas Price'" v-on:success="(e) => {gasPrice = '0x' + e.value.multipliedBy(e.unit).toString(16)}" />
         </div>
       </div>
 
@@ -288,8 +289,8 @@ export default {
       host: '',
       explorer: '',
       toAddress: '',
-      val: '',
-      gasPrice: '',
+      val: '0',
+      gasPrice: '0',
       gasLimit: '',
       gas: '',
       data: '',

@@ -21,7 +21,8 @@
 </template>
 
 <script>
-// TODO: use bignumber instead
+import { BigNumber } from 'bignumber.js'
+
 export default {
   name: 'ether-units',
   data () {
@@ -35,13 +36,13 @@ export default {
       value: 0,
       unit: 'wei',
       units: {
-        wei: 1,
-        kwei: 1000,
-        mwei: 1000000,
-        gwei: 1000000000,
-        szabo: 1000000000000,
-        finny: 1000000000000000,
-        ether: 1000000000000000000
+        wei: new BigNumber(1),
+        kwei: new BigNumber(1000),
+        mwei: new BigNumber(1000000),
+        gwei: new BigNumber(1000000000),
+        szabo: new BigNumber(1000000000000),
+        finny: new BigNumber(1000000000000000),
+        ether: new BigNumber(1000000000000000000)
       }
     }
   },
@@ -55,8 +56,12 @@ export default {
         this.$emit('failed', new Error('please choose unit'))
         return false
       }
+      if (this.units[this.unit] === undefined) {
+        this.$emit('failed', new Error('unit not found'))
+        return false
+      }
       let val = {
-        value: parseFloat(this.value),
+        value: new BigNumber(this.value),
         unitName: this.unit,
         unit: this.units[this.unit]
       }
