@@ -42,7 +42,7 @@
             <div class="control">
               <input id="file-seed" class="input" type="file" v-on:change="readKeystoreJsonFile" placeholder="Keystore JSON" v-bind:class="{'is-danger': (!isKeystoreJsonValid && keystoreJson), 'is-success': isKeystoreJsonValid}">
               <p class="help is-danger file-help" v-if="!isKeystoreJsonValid && keystoreJson">Keystore JSON isn't valid</p>
-              <p class="help is-success file-help" v-if="isKeystoreJsonValid">Keystore JSON is valid</p>
+              <!-- p class="help is-success file-help" v-if="isKeystoreJsonValid">Keystore JSON is valid</p -->
             </div>
           </div>
         </div>
@@ -89,7 +89,7 @@
               <div class="control">
                 <input id="host" class="input" type="text" v-model="host" placeholder="Host" v-bind:class="{'is-danger': (!isHostValid && host), 'is-success': isHostValid}" v-on:change="resetProvider">
                 <p class="help is-danger" v-if="!isHostValid && host">Host isn't valid</p>
-                <p class="help is-success" v-if="isHostValid">Host is valid</p>
+                <!-- p class="help is-success" v-if="isHostValid">Host is valid</p -->
               </div>
             </div>
 
@@ -111,14 +111,14 @@
         <div class="container">
           <div class="columns">
             <div class="column is-one-quarter">
-              <label class="label" for="contractAddress">To Address</label>
+              <label class="label" for="toAddress">To Address</label>
             </div>
           
             <div class="column is-third-quarter">
               <div class="control">
                 <input id="toAddress" class="input" type="text" v-model="toAddress" placeholder="To Address" v-bind:class="{'is-danger': (!isToAddressValid && toAddress), 'is-success': isToAddressValid}">
                 <p class="help is-danger" v-if="!isToAddressValid && toAddress">To Address isn't valid</p>
-                <p class="help is-success" v-if="isToAddressValid && toAddress">To Address is valid</p>
+                <!-- p class="help is-success" v-if="isToAddressValid && toAddress">To Address is valid</p -->
               </div>
             </div>
           </div>
@@ -147,29 +147,12 @@
             <div class="column is-third-quarter">
               <div class="control">
                 <input id="gas-limit" class="input" type="text" v-model="gasLimit" placeholder="Gas Limit" v-bind:class="{'is-success': gasLimit}">
-                <p class="help is-success" v-if="gasLimit">Gas limit is valid</p>
+                <!-- p class="help is-success" v-if="isNumberValid(gasLimit)">Gas limit is valid</p -->
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <!--div class="panel-block">
-        <div class="container">
-          <div class="columns">
-            <div class="column is-one-quarter">
-              <label class="label" for="gas">Gas</label>
-            </div>
-          
-            <div class="column is-third-quarter">
-              <div class="control">
-                <input id="gas" class="input" type="text" v-model="gas" placeholder="Gas" v-bind:class="{'is-success': gas}">
-                <p class="help is-success" v-if="gas">Gas is valid</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div-->
 
       <div class="panel-block">
         <div class="container">
@@ -181,7 +164,7 @@
             <div class="column is-third-quarter">
               <div class="control">
                 <input id="data" class="input" type="text" v-model="data" placeholder="Data" v-bind:class="{'is-success': isHex(data)}">
-                <p class="help is-success" v-if="isHex(data)">Data is valid</p>
+                <!-- p class="help is-success" v-if="isHex(data)">Data is valid</p -->
               </div>
             </div>
           </div>
@@ -333,6 +316,7 @@ export default {
       if (!this.toAddress) {
         return false
       }
+      // TODO: verify checksum
       return /0x[a-zA-Z0-9]{40}/.test(this.toAddress)
     },
     isImportJSON () {
@@ -550,7 +534,7 @@ export default {
       }
       this.send = true
 
-      const provider = (this.isMetamask) ? this.metamaskProvider : this.provider
+      const provider = (this.isMetamask) ? new ethers.providers.Web3Provider(window.ethereum, 'any') : this.provider
       try {
         let txId = ''
         if (this.isMetamask) {
@@ -569,9 +553,9 @@ export default {
           txId = await provider.send('eth_sendRawTransaction', [ this.signedTransaction ])
         }
         this.result = txId
-        if (!this.isImportJSON) {
+        if (!this.isImportJSON && !this.isMetamask) {
           this.notify({ text: 'Transaction confirmed!', class: 'is-info' })
-          this.handleTransactionConfirmed()
+          await this.updateAddressInfo()
           return
         }
         confirmedTransaction(provider, txId, 1, function (err, tx) {
@@ -584,7 +568,7 @@ export default {
             return
           }
           this.notify({ text: 'Transaction confirmed!', class: 'is-info' })
-          this.handleTransactionConfirmed()
+          this.updateAddressInfo()
         }.bind(this))
       } catch (err) {
         this.send = false
@@ -617,15 +601,21 @@ export default {
         this.notify({ text: 'Please connect to MetaMask!', class: 'is-danger' })
       } else if (accounts[0] !== this.address) {
         this.address = accounts[0]
-        this.nonce = await this.metamaskProvider.request({ method: 'eth_getTransactionCount', params: [ accounts[0] ] })
-        this.balance = parseInt(await this.metamaskProvider.request({ method: 'eth_getBalance', params: [ accounts[0] ] }), 16).toString()
+        this.updateAddressInfo()
       }
     },
-    async handleTransactionConfirmed () {
+    async updateAddressInfo () {
       this.nonce = await this.getNonce()
       let balance = await this.getBalance()
       this.balance = balance.toString(10)
       this.send = false
+    },
+    isNumberValid (num) {
+      const numType = typeof num
+      if (numType === 'string') {
+        return this.isHex(num) || /^[0-9]+$/.test(num)
+      }
+      return numType === 'number'
     },
     ...mapActions([
       'notify'
@@ -639,9 +629,7 @@ export default {
         this.balance = '0'
         try {
           this.provider = this.newProvider()
-          this.nonce = await this.getNonce()
-          let balance = await this.getBalance()
-          this.balance = balance.toString(10)
+          await this.updateAddressInfo()
         } catch (err) {
           console.warn(err.message)
         }
